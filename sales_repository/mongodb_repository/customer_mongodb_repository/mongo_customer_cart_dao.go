@@ -1,4 +1,4 @@
-package mongodb_repository
+package customer_mongodb_repository
 
 import (
 	"fmt"
@@ -12,29 +12,31 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// CustomerorderMongoDBDao - Customerorder DAO Repository
-type CustomerorderMongoDBDao struct {
+// CustomerCartMongoDBDao - Cart DAO Repository
+type CustomerCartMongoDBDao struct {
 	client     utils.Map
 	businessId string
+	customerId string
 }
 
 func init() {
 	log.SetFlags(log.Lshortfile | log.LstdFlags | log.Lmicroseconds)
 }
 
-func (p *CustomerorderMongoDBDao) InitializeDao(client utils.Map, businessId string) {
-	log.Println("Initialize Customerorder Mongodb DAO")
+func (p *CustomerCartMongoDBDao) InitializeDao(client utils.Map, businessId string, customerId string) {
+	log.Println("Initialize Cart Mongodb DAO")
 	p.client = client
 	p.businessId = businessId
+	p.customerId = customerId
 }
 
 // List - List all Collections
-func (t *CustomerorderMongoDBDao) List(filter string, sort string, skip int64, limit int64) (utils.Map, error) {
+func (t *CustomerCartMongoDBDao) List(filter string, sort string, skip int64, limit int64) (utils.Map, error) {
 	var results []utils.Map
 
-	log.Println("Begin - Find All Collection Dao", sales_common.DbCustomerorder)
+	log.Println("Begin - Find All Collection Dao", sales_common.DbCustomerCart)
 
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCustomerorder)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCustomerCart)
 	if err != nil {
 		return nil, err
 	}
@@ -74,6 +76,7 @@ func (t *CustomerorderMongoDBDao) List(filter string, sort string, skip int64, l
 	}
 	filterdoc = append(filterdoc,
 		bson.E{Key: sales_common.FLD_BUSINESS_ID, Value: t.businessId},
+		bson.E{Key: sales_common.FLD_CUSTOMER_ID, Value: t.customerId},
 		bson.E{Key: db_common.FLD_IS_DELETED, Value: false})
 
 	log.Println("Parameter values ", filterdoc, opts)
@@ -104,7 +107,9 @@ func (t *CustomerorderMongoDBDao) List(filter string, sort string, skip int64, l
 		return nil, err
 	}
 
-	basefilterdoc := bson.D{{Key: sales_common.FLD_BUSINESS_ID, Value: t.businessId}}
+	basefilterdoc := bson.D{
+		{Key: sales_common.FLD_BUSINESS_ID, Value: t.businessId},
+		{Key: sales_common.FLD_CUSTOMER_ID, Value: t.customerId}}
 	totalcount, err := collection.CountDocuments(ctx, basefilterdoc)
 	if err != nil {
 		return nil, err
@@ -123,19 +128,20 @@ func (t *CustomerorderMongoDBDao) List(filter string, sort string, skip int64, l
 }
 
 // Get - Get by code
-func (t *CustomerorderMongoDBDao) Get(customerorderId string) (utils.Map, error) {
+func (t *CustomerCartMongoDBDao) Get(cartId string) (utils.Map, error) {
 	// Get a single document
 	var result utils.Map
 
-	log.Println("CustomerorderMongoDBDao::Get:: Begin ", customerorderId)
+	log.Println("CustomerCartMongoDBDao::Get:: Begin ", cartId)
 
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCustomerorder)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCustomerCart)
 	log.Println("Get:: Got Collection ")
 
-	filter := bson.D{{Key: sales_common.FLD_CUSTOMER_ORDER_ID, Value: customerorderId}, {}}
+	filter := bson.D{{Key: sales_common.FLD_CART_ID, Value: cartId}, {}}
 
 	filter = append(filter,
 		bson.E{Key: sales_common.FLD_BUSINESS_ID, Value: t.businessId},
+		bson.E{Key: sales_common.FLD_CUSTOMER_ID, Value: t.customerId},
 		bson.E{Key: db_common.FLD_IS_DELETED, Value: false})
 
 	log.Println("Get:: Got filter ", filter)
@@ -153,18 +159,18 @@ func (t *CustomerorderMongoDBDao) Get(customerorderId string) (utils.Map, error)
 	// Remove fields from result
 	result = db_common.AmendFldsForGet(result)
 
-	log.Printf("CustomerorderMongoDBDao::Get:: End Found a single document: %+v\n", result)
+	log.Printf("Business CustomerCartMongoDBDao::Get:: End Found a single document: %+v\n", result)
 	return result, nil
 }
 
 // Find - Find by Filter
-func (p *CustomerorderMongoDBDao) Find(filter string) (utils.Map, error) {
+func (p *CustomerCartMongoDBDao) Find(filter string) (utils.Map, error) {
 	// Find a single document
 	var result utils.Map
 
-	log.Println("CustomerorderDBDao::Find:: Begin ", filter)
+	log.Println("CartDBDao::Find:: Begin ", filter)
 
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(p.client, sales_common.DbCustomerorder)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(p.client, sales_common.DbCustomerCart)
 	log.Println("Find:: Got Collection ", err)
 
 	bfilter := bson.D{}
@@ -174,6 +180,7 @@ func (p *CustomerorderMongoDBDao) Find(filter string) (utils.Map, error) {
 	}
 	bfilter = append(bfilter,
 		bson.E{Key: sales_common.FLD_BUSINESS_ID, Value: p.businessId},
+		bson.E{Key: sales_common.FLD_CUSTOMER_ID, Value: p.customerId},
 		bson.E{Key: db_common.FLD_IS_DELETED, Value: false})
 
 	log.Println("Find:: Got filter ", bfilter)
@@ -191,16 +198,16 @@ func (p *CustomerorderMongoDBDao) Find(filter string) (utils.Map, error) {
 	// Remove fields from result
 	result = db_common.AmendFldsForGet(result)
 
-	log.Println("CustomerorderDBDao::Find:: End Found a single document: \n", err)
+	log.Println("CartDBDao::Find:: End Found a single document: \n", err)
 	return result, nil
 }
 
 // Create - Create Collection
-func (t *CustomerorderMongoDBDao) Create(indata utils.Map) (utils.Map, error) {
+func (t *CustomerCartMongoDBDao) Create(indata utils.Map) (utils.Map, error) {
 
-	log.Println("Customerorder Save - Begin", indata)
-	//Sales Customerorder
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCustomerorder)
+	log.Println("Cart Save - Begin", indata)
+	//Sales Cart
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCustomerCart)
 	if err != nil {
 		log.Println("Error in insert ", err)
 		return utils.Map{}, err
@@ -215,18 +222,18 @@ func (t *CustomerorderMongoDBDao) Create(indata utils.Map) (utils.Map, error) {
 
 	}
 	log.Println("Inserted a single document: ", insertResult1.InsertedID)
-	log.Println("Save - End", indata[sales_common.FLD_CUSTOMER_ORDER_ID])
+	log.Println("Save - End", indata[sales_common.FLD_CART_ID])
 
-	return t.Get(indata[sales_common.FLD_CUSTOMER_ORDER_ID].(string))
+	return t.Get(indata[sales_common.FLD_CART_ID].(string))
 }
 
 // Update - Update Collection
-func (t *CustomerorderMongoDBDao) Update(customerorderId string, indata utils.Map) (utils.Map, error) {
+func (t *CustomerCartMongoDBDao) Update(cartId string, indata utils.Map) (utils.Map, error) {
 
 	log.Println("Update - Begin")
 
-	//Sales Customerorder
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCustomerorder)
+	//Sales Cart
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCustomerCart)
 	if err != nil {
 		return utils.Map{}, err
 	}
@@ -234,39 +241,39 @@ func (t *CustomerorderMongoDBDao) Update(customerorderId string, indata utils.Ma
 	indata = db_common.AmendFldsforUpdate(indata)
 	log.Printf("Update - Values %v", indata)
 
-	filterCustomerorder := bson.D{{Key: sales_common.FLD_CUSTOMER_ORDER_ID, Value: customerorderId}}
-	updateResult1, err := collection.UpdateOne(ctx, filterCustomerorder, bson.D{{Key: "$set", Value: indata}})
+	filterCart := bson.D{{Key: sales_common.FLD_CART_ID, Value: cartId}}
+	updateResult1, err := collection.UpdateOne(ctx, filterCart, bson.D{{Key: "$set", Value: indata}})
 	if err != nil {
 		return utils.Map{}, err
 	}
 	log.Println("Update a single document: ", updateResult1.ModifiedCount)
 
 	log.Println("Update - End")
-	return t.Get(customerorderId)
+	return t.Get(cartId)
 }
 
 // Delete - Delete Collection
-func (t *CustomerorderMongoDBDao) Delete(customerorderId string) (int64, error) {
+func (t *CustomerCartMongoDBDao) Delete(cartId string) (int64, error) {
 
-	log.Println("CustomerorderMongoDBDao::Delete - Begin ", customerorderId)
+	log.Println("CustomerCartMongoDBDao::Delete - Begin ", cartId)
 
-	// Sales Customerorder
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCustomerorder)
+	// Sales Cart
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCustomerCart)
 	if err != nil {
 		return 0, err
 	}
-	optsCustomerorder := options.Delete().SetCollation(&options.Collation{
+	optsCart := options.Delete().SetCollation(&options.Collation{
 		Locale:    db_common.LOCALE,
 		Strength:  1,
 		CaseLevel: false,
 	})
 
-	filterCustomerorder := bson.D{{Key: sales_common.FLD_CUSTOMER_ORDER_ID, Value: customerorderId}}
-	resCustomerorder, err := collection.DeleteOne(ctx, filterCustomerorder, optsCustomerorder)
+	filterCart := bson.D{{Key: sales_common.FLD_CART_ID, Value: cartId}}
+	resCart, err := collection.DeleteOne(ctx, filterCart, optsCart)
 	if err != nil {
 		log.Println("Error in delete ", err)
 		return 0, err
 	}
-	log.Printf("CustomerorderMongoDBDao::Delete - End deleted %v documents\n", resCustomerorder.DeletedCount)
-	return resCustomerorder.DeletedCount, nil
+	log.Printf("CustomerCartMongoDBDao::Delete - End deleted %v documents\n", resCart.DeletedCount)
+	return resCart.DeletedCount, nil
 }

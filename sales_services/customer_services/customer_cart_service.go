@@ -1,4 +1,4 @@
-package sales_services
+package customer_services
 
 import (
 	"fmt"
@@ -10,10 +10,11 @@ import (
 	"github.com/zapscloud/golib-platform/platform_repository"
 	"github.com/zapscloud/golib-sales/sales_common"
 	"github.com/zapscloud/golib-sales/sales_repository"
+	"github.com/zapscloud/golib-sales/sales_repository/customer_repository"
 	"github.com/zapscloud/golib-utils/utils"
 )
 
-type CartService interface {
+type CustomerCartService interface {
 	// List - List All records
 	List(filter string, sort string, skip int64, limit int64) (utils.Map, error)
 	// Get - Find By Code
@@ -30,27 +31,27 @@ type CartService interface {
 	EndService()
 }
 
-type cartBaseService struct {
+type customerCartBaseService struct {
 	db_utils.DatabaseService
-	daoCart     sales_repository.CartDao
+	daoCart     customer_repository.CustomerCartDao
 	daoBusiness platform_repository.BusinessDao
 	daoCustomer sales_repository.CustomerDao
 
-	child      CartService
+	child      CustomerCartService
 	businessId string
 	customerId string
 }
 
-// NewCartService - Construct Cart
-func NewCartService(props utils.Map) (CartService, error) {
+// NewCustomerCartService - Construct CustomerCart
+func NewCustomerCartService(props utils.Map) (CustomerCartService, error) {
 	funcode := sales_common.GetServiceModuleCode() + "M" + "01"
 
-	p := cartBaseService{}
+	p := customerCartBaseService{}
 	err := p.OpenDatabaseService(props)
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("CartService ")
+	log.Printf("CustomerCartService ")
 	// Verify whether the business id data passed
 	businessId, err := utils.IsMemberExist(props, sales_common.FLD_BUSINESS_ID)
 	if err != nil {
@@ -88,54 +89,54 @@ func NewCartService(props utils.Map) (CartService, error) {
 }
 
 // EndLoyaltyCardService - Close all the services
-func (p *cartBaseService) EndService() {
+func (p *customerCartBaseService) EndService() {
 	log.Printf("EndService ")
 	p.CloseDatabaseService()
 }
 
-func (p *cartBaseService) initializeService() {
-	log.Printf("CartService:: GetBusinessDao ")
-	p.daoCart = sales_repository.NewCartDao(p.GetClient(), p.businessId, p.customerId)
+func (p *customerCartBaseService) initializeService() {
+	log.Printf("CustomerCartService:: GetBusinessDao ")
+	p.daoCart = customer_repository.NewCustomerCartDao(p.GetClient(), p.businessId, p.customerId)
 	p.daoBusiness = platform_repository.NewBusinessDao(p.GetClient())
 	p.daoCustomer = sales_repository.NewCustomerDao(p.GetClient(), p.businessId)
 }
 
 // List - List All records
-func (p *cartBaseService) List(filter string, sort string, skip int64, limit int64) (utils.Map, error) {
+func (p *customerCartBaseService) List(filter string, sort string, skip int64, limit int64) (utils.Map, error) {
 
-	log.Println("cartBaseService::FindAll - Begin")
+	log.Println("customerCartBaseService::FindAll - Begin")
 
 	listdata, err := p.daoCart.List(filter, sort, skip, limit)
 	if err != nil {
 		return nil, err
 	}
 
-	log.Println("cartBaseService::FindAll - End ")
+	log.Println("customerCartBaseService::FindAll - End ")
 	return listdata, nil
 }
 
 // Get - Find By Code
-func (p *cartBaseService) Get(cartId string) (utils.Map, error) {
-	log.Printf("cartBaseService::Get::  Begin %v", cartId)
+func (p *customerCartBaseService) Get(cartId string) (utils.Map, error) {
+	log.Printf("customerCartBaseService::Get::  Begin %v", cartId)
 
 	data, err := p.daoCart.Get(cartId)
 
-	log.Println("cartBaseService::Get:: End ", data, err)
+	log.Println("customerCartBaseService::Get:: End ", data, err)
 	return data, err
 }
 
-func (p *cartBaseService) Find(filter string) (utils.Map, error) {
-	fmt.Println("CartService::FindByCode::  Begin ", filter)
+func (p *customerCartBaseService) Find(filter string) (utils.Map, error) {
+	fmt.Println("CustomerCartService::FindByCode::  Begin ", filter)
 
 	data, err := p.daoCart.Find(filter)
-	log.Println("CartService::FindByCode:: End ", data, err)
+	log.Println("CustomerCartService::FindByCode:: End ", data, err)
 	return data, err
 }
 
 // Create - Create Service
-func (p *cartBaseService) Create(indata utils.Map) (utils.Map, error) {
+func (p *customerCartBaseService) Create(indata utils.Map) (utils.Map, error) {
 
-	log.Println("CartService::Create - Begin")
+	log.Println("CustomerCartService::Create - Begin")
 	var cartId string
 
 	dataval, dataok := indata[sales_common.FLD_CART_ID]
@@ -143,7 +144,7 @@ func (p *cartBaseService) Create(indata utils.Map) (utils.Map, error) {
 		cartId = strings.ToLower(dataval.(string))
 	} else {
 		cartId = utils.GenerateUniqueId("crt")
-		log.Println("Unique Cart ID", cartId)
+		log.Println("Unique CustomerCart ID", cartId)
 	}
 
 	// Assign BusinessId
@@ -156,14 +157,14 @@ func (p *cartBaseService) Create(indata utils.Map) (utils.Map, error) {
 		return utils.Map{}, err
 	}
 
-	log.Println("CartService::Create - End ")
+	log.Println("CustomerCartService::Create - End ")
 	return data, nil
 }
 
 // Update - Update Service
-func (p *cartBaseService) Update(cartId string, indata utils.Map) (utils.Map, error) {
+func (p *customerCartBaseService) Update(cartId string, indata utils.Map) (utils.Map, error) {
 
-	log.Println("CartService::Update - Begin")
+	log.Println("CustomerCartService::Update - Begin")
 
 	// Delete Key values
 	delete(indata, sales_common.FLD_BUSINESS_ID)
@@ -172,14 +173,14 @@ func (p *cartBaseService) Update(cartId string, indata utils.Map) (utils.Map, er
 
 	data, err := p.daoCart.Update(cartId, indata)
 
-	log.Println("CartService::Update - End ")
+	log.Println("CustomerCartService::Update - End ")
 	return data, err
 }
 
 // Delete - Delete Service
-func (p *cartBaseService) Delete(cartId string, delete_permanent bool) error {
+func (p *customerCartBaseService) Delete(cartId string, delete_permanent bool) error {
 
-	log.Println("CartService::Delete - Begin", cartId)
+	log.Println("CustomerCartService::Delete - Begin", cartId)
 
 	if delete_permanent {
 		result, err := p.daoCart.Delete(cartId)
@@ -196,6 +197,6 @@ func (p *cartBaseService) Delete(cartId string, delete_permanent bool) error {
 		log.Println("Update for Delete Flag", data)
 	}
 
-	log.Printf("CartService::Delete - End")
+	log.Printf("CustomerCartService::Delete - End")
 	return nil
 }

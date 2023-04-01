@@ -1,32 +1,33 @@
-package sales_repository
+package customer_repository
 
 import (
 	"github.com/zapscloud/golib-dbutils/db_common"
-	"github.com/zapscloud/golib-sales/sales_repository/mongodb_repository"
+	"github.com/zapscloud/golib-sales/sales_repository/mongodb_repository/customer_mongodb_repository"
+
 	"github.com/zapscloud/golib-utils/utils"
 )
 
-// CartDao - Card DAO Repository
-type CartDao interface {
+// CustomerorderDao - Card DAO Repository
+type CustomerOrderDao interface {
 	// InitializeDao
-	InitializeDao(client utils.Map, businessId string, customerId string)
+	InitializeDao(client utils.Map, businessId string)
 	//List - List all Collections
 	List(filter string, sort string, skip int64, limit int64) (utils.Map, error)
 	// Get - Get by code
-	Get(cartId string) (utils.Map, error)
+	Get(customerorderId string) (utils.Map, error)
 	// Find - Find by filter
 	Find(filter string) (utils.Map, error)
 	// Create - Create Collection
 	Create(indata utils.Map) (utils.Map, error)
 	// Update - Update Collection
-	Update(cartId string, indata utils.Map) (utils.Map, error)
+	Update(customerorderId string, indata utils.Map) (utils.Map, error)
 	// Delete - Delete Collection
-	Delete(cartId string) (int64, error)
+	Delete(customerorderId string) (int64, error)
 }
 
-// NewCartDao - Contruct Business Cart Dao
-func NewCartDao(client utils.Map, businessId string, customerId string) CartDao {
-	var daoCart CartDao = nil
+// NewCustomerorderDao - Contruct Business Customerorder Dao
+func NewCustomerOrderDao(client utils.Map, business_id string) CustomerOrderDao {
+	var daoCustomerorder CustomerOrderDao = nil
 
 	// Get DatabaseType and no need to validate error
 	// since the dbType was assigned with correct value after dbService was created
@@ -34,17 +35,17 @@ func NewCartDao(client utils.Map, businessId string, customerId string) CartDao 
 
 	switch dbType {
 	case db_common.DATABASE_TYPE_MONGODB:
-		daoCart = &mongodb_repository.CartMongoDBDao{}
+		daoCustomerorder = &customer_mongodb_repository.CustomerOrderMongoDBDao{}
 	case db_common.DATABASE_TYPE_ZAPSDB:
 		// *Not Implemented yet*
 	case db_common.DATABASE_TYPE_MYSQLDB:
 		// *Not Implemented yet*
 	}
 
-	if daoCart != nil {
+	if daoCustomerorder != nil {
 		// Initialize the Dao
-		daoCart.InitializeDao(client, businessId, customerId)
+		daoCustomerorder.InitializeDao(client, business_id)
 	}
 
-	return daoCart
+	return daoCustomerorder
 }

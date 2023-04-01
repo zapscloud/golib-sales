@@ -1,4 +1,4 @@
-package customer_auth_services
+package customer_services
 
 import (
 	"log"

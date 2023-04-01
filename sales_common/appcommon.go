@@ -8,9 +8,9 @@ import (
 
 // Product Module tables
 const (
-	DbRegion        = "sales_region"
-	DbBanner        = "sales_banner"
-	DbCart          = "sales_cart"
+	DbRegion = "sales_region"
+	DbBanner = "sales_banner"
+
 	DbBrand         = "sales_brands"
 	DbCatalogue     = "sales_catalogue"
 	DbCategory      = "sales_category"
@@ -18,11 +18,12 @@ const (
 	DbTestimonial   = "sales_testimonial"
 	DbBlog          = "sales_blog"
 	DbCustomer      = "sales_customer"
-	DbOrder         = "sales_order"
+	DbCustomerOrder = "sales_customer_order"
+	DbCustomerCart  = "sales_customer_cart"
 	DbPolicies      = "sales_policies"
 	DbPayment       = "sales_payment"
 	DbNavigation    = "sales_navigation"
-	DbCustomerorder = "sales_customer_order"
+	DbPreference    = "sales_preference"
 )
 
 // Product Module table fields
@@ -93,6 +94,10 @@ const (
 	// Fields for Navigation
 	FLD_NAVIGATION_ID   = "navigation_id"
 	FLD_NAVIGATION_NAME = "navigation_name"
+
+	// Fields for Preference
+	FLD_PREFERENCE_ID   = "preference_id"
+	FLD_PREFERENCE_NAME = "preference_name"
 )
 
 func init() {
