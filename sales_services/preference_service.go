@@ -128,7 +128,7 @@ func (p *preferenceBaseService) Create(indata utils.Map) (utils.Map, error) {
 	if dataok {
 		preferenceId = strings.ToLower(dataval.(string))
 	} else {
-		preferenceId = utils.GenerateUniqueId("pol")
+		preferenceId = utils.GenerateUniqueId("pre")
 		log.Println("Unique Preference ID", preferenceId)
 	}
 
