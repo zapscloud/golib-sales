@@ -10,7 +10,7 @@ import (
 // CustomerorderDao - Card DAO Repository
 type CustomerOrderDao interface {
 	// InitializeDao
-	InitializeDao(client utils.Map, businessId string)
+	InitializeDao(client utils.Map, businessId string, customerId string)
 	//List - List all Collections
 	List(filter string, sort string, skip int64, limit int64) (utils.Map, error)
 	// Get - Get by code
@@ -26,7 +26,7 @@ type CustomerOrderDao interface {
 }
 
 // NewCustomerorderDao - Contruct Business Customerorder Dao
-func NewCustomerOrderDao(client utils.Map, business_id string) CustomerOrderDao {
+func NewCustomerOrderDao(client utils.Map, businessId string, customerId string) CustomerOrderDao {
 	var daoCustomerorder CustomerOrderDao = nil
 
 	// Get DatabaseType and no need to validate error
@@ -44,7 +44,7 @@ func NewCustomerOrderDao(client utils.Map, business_id string) CustomerOrderDao 
 
 	if daoCustomerorder != nil {
 		// Initialize the Dao
-		daoCustomerorder.InitializeDao(client, business_id)
+		daoCustomerorder.InitializeDao(client, businessId, customerId)
 	}
 
 	return daoCustomerorder

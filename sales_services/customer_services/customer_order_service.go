@@ -9,6 +9,7 @@ import (
 	"github.com/zapscloud/golib-dbutils/db_utils"
 	"github.com/zapscloud/golib-platform/platform_repository"
 	"github.com/zapscloud/golib-sales/sales_common"
+	"github.com/zapscloud/golib-sales/sales_repository"
 	"github.com/zapscloud/golib-sales/sales_repository/customer_repository"
 	"github.com/zapscloud/golib-utils/utils"
 )
@@ -34,8 +35,11 @@ type customerOrderBaseService struct {
 	db_utils.DatabaseService
 	daoCustomerOrder customer_repository.CustomerOrderDao
 	daoBusiness      platform_repository.BusinessDao
-	child            CustomerOrderService
-	businessId       string
+	daoCustomer      sales_repository.CustomerDao
+
+	child      CustomerOrderService
+	businessId string
+	customerId string
 }
 
 // NewCustomerOrderService - Construct CustomerOrder
@@ -54,13 +58,27 @@ func NewCustomerOrderService(props utils.Map) (CustomerOrderService, error) {
 		return nil, err
 	}
 
+	// Verify whether the User id data passed
+	customerId, err := utils.IsMemberExist(props, sales_common.FLD_CUSTOMER_ID)
+	if err != nil {
+		return nil, err
+	}
+
 	// Assign the BusinessId
 	p.businessId = businessId
+	p.customerId = customerId
 	p.initializeService()
 
 	_, err = p.daoBusiness.GetDetails(businessId)
 	if err != nil {
 		err := &utils.AppError{ErrorCode: funcode + "01", ErrorMsg: "Invalid business_id", ErrorDetail: "Given app_business_id is not exist"}
+		return nil, err
+	}
+
+	// Verify the Customer Exist
+	_, err = p.daoCustomer.Get(customerId)
+	if err != nil {
+		err := &utils.AppError{ErrorCode: funcode + "01", ErrorMsg: "Invalid CustomerId", ErrorDetail: "Given CustomerId is not exist"}
 		return nil, err
 	}
 
@@ -77,7 +95,7 @@ func (p *customerOrderBaseService) EndService() {
 
 func (p *customerOrderBaseService) initializeService() {
 	log.Printf("customerOrderBaseService:: GetBusinessDao ")
-	p.daoCustomerOrder = customer_repository.NewCustomerOrderDao(p.GetClient(), p.businessId)
+	p.daoCustomerOrder = customer_repository.NewCustomerOrderDao(p.GetClient(), p.businessId, p.customerId)
 	p.daoBusiness = platform_repository.NewBusinessDao(p.GetClient())
 }
 

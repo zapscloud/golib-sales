@@ -109,7 +109,9 @@ func (t *CustomerCartMongoDBDao) List(filter string, sort string, skip int64, li
 
 	basefilterdoc := bson.D{
 		{Key: sales_common.FLD_BUSINESS_ID, Value: t.businessId},
-		{Key: sales_common.FLD_CUSTOMER_ID, Value: t.customerId}}
+		{Key: sales_common.FLD_CUSTOMER_ID, Value: t.customerId},
+		{Key: db_common.FLD_IS_DELETED, Value: false}}
+
 	totalcount, err := collection.CountDocuments(ctx, basefilterdoc)
 	if err != nil {
 		return nil, err

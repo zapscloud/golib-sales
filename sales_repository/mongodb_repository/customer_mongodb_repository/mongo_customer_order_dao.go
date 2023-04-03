@@ -16,16 +16,18 @@ import (
 type CustomerOrderMongoDBDao struct {
 	client     utils.Map
 	businessId string
+	customerId string
 }
 
 func init() {
 	log.SetFlags(log.Lshortfile | log.LstdFlags | log.Lmicroseconds)
 }
 
-func (p *CustomerOrderMongoDBDao) InitializeDao(client utils.Map, businessId string) {
+func (p *CustomerOrderMongoDBDao) InitializeDao(client utils.Map, businessId string, customerId string) {
 	log.Println("Initialize CustomerOrder Mongodb DAO")
 	p.client = client
 	p.businessId = businessId
+	p.customerId = customerId
 }
 
 // List - List all Collections
@@ -104,7 +106,10 @@ func (t *CustomerOrderMongoDBDao) List(filter string, sort string, skip int64, l
 		return nil, err
 	}
 
-	basefilterdoc := bson.D{{Key: sales_common.FLD_BUSINESS_ID, Value: t.businessId}}
+	basefilterdoc := bson.D{
+		{Key: sales_common.FLD_BUSINESS_ID, Value: t.businessId},
+		{Key: sales_common.FLD_CUSTOMER_ID, Value: t.customerId},
+		{Key: db_common.FLD_IS_DELETED, Value: false}}
 	totalcount, err := collection.CountDocuments(ctx, basefilterdoc)
 	if err != nil {
 		return nil, err

@@ -33,9 +33,9 @@ type CustomerCartService interface {
 
 type customerCartBaseService struct {
 	db_utils.DatabaseService
-	daoCart     customer_repository.CustomerCartDao
-	daoBusiness platform_repository.BusinessDao
-	daoCustomer sales_repository.CustomerDao
+	daoCustomerCart customer_repository.CustomerCartDao
+	daoBusiness     platform_repository.BusinessDao
+	daoCustomer     sales_repository.CustomerDao
 
 	child      CustomerCartService
 	businessId string
@@ -96,7 +96,7 @@ func (p *customerCartBaseService) EndService() {
 
 func (p *customerCartBaseService) initializeService() {
 	log.Printf("CustomerCartService:: GetBusinessDao ")
-	p.daoCart = customer_repository.NewCustomerCartDao(p.GetClient(), p.businessId, p.customerId)
+	p.daoCustomerCart = customer_repository.NewCustomerCartDao(p.GetClient(), p.businessId, p.customerId)
 	p.daoBusiness = platform_repository.NewBusinessDao(p.GetClient())
 	p.daoCustomer = sales_repository.NewCustomerDao(p.GetClient(), p.businessId)
 }
@@ -106,7 +106,7 @@ func (p *customerCartBaseService) List(filter string, sort string, skip int64, l
 
 	log.Println("customerCartBaseService::FindAll - Begin")
 
-	listdata, err := p.daoCart.List(filter, sort, skip, limit)
+	listdata, err := p.daoCustomerCart.List(filter, sort, skip, limit)
 	if err != nil {
 		return nil, err
 	}
@@ -119,7 +119,7 @@ func (p *customerCartBaseService) List(filter string, sort string, skip int64, l
 func (p *customerCartBaseService) Get(cartId string) (utils.Map, error) {
 	log.Printf("customerCartBaseService::Get::  Begin %v", cartId)
 
-	data, err := p.daoCart.Get(cartId)
+	data, err := p.daoCustomerCart.Get(cartId)
 
 	log.Println("customerCartBaseService::Get:: End ", data, err)
 	return data, err
@@ -128,7 +128,7 @@ func (p *customerCartBaseService) Get(cartId string) (utils.Map, error) {
 func (p *customerCartBaseService) Find(filter string) (utils.Map, error) {
 	fmt.Println("CustomerCartService::FindByCode::  Begin ", filter)
 
-	data, err := p.daoCart.Find(filter)
+	data, err := p.daoCustomerCart.Find(filter)
 	log.Println("CustomerCartService::FindByCode:: End ", data, err)
 	return data, err
 }
@@ -152,7 +152,7 @@ func (p *customerCartBaseService) Create(indata utils.Map) (utils.Map, error) {
 	indata[sales_common.FLD_CUSTOMER_ID] = p.customerId
 	indata[sales_common.FLD_CART_ID] = cartId
 
-	data, err := p.daoCart.Create(indata)
+	data, err := p.daoCustomerCart.Create(indata)
 	if err != nil {
 		return utils.Map{}, err
 	}
@@ -171,7 +171,7 @@ func (p *customerCartBaseService) Update(cartId string, indata utils.Map) (utils
 	delete(indata, sales_common.FLD_CUSTOMER_ID)
 	delete(indata, sales_common.FLD_CART_ID)
 
-	data, err := p.daoCart.Update(cartId, indata)
+	data, err := p.daoCustomerCart.Update(cartId, indata)
 
 	log.Println("CustomerCartService::Update - End ")
 	return data, err
@@ -183,7 +183,7 @@ func (p *customerCartBaseService) Delete(cartId string, delete_permanent bool) e
 	log.Println("CustomerCartService::Delete - Begin", cartId)
 
 	if delete_permanent {
-		result, err := p.daoCart.Delete(cartId)
+		result, err := p.daoCustomerCart.Delete(cartId)
 		if err != nil {
 			return err
 		}

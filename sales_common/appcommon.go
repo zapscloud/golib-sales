@@ -36,9 +36,9 @@ const (
 	FLD_SEO_KEYID   = "seo_key_id"
 
 	// Fields for Region
-	FLD_REGION_ID           = "region_id"
-	FLD_REGION_NAME         = "region_name"
-	FLD_REGION_PINCODES     = "region_pincodes"
+	FLD_REGION_ID           = "sales_region_id"
+	FLD_REGION_NAME         = "sales_region_name"
+	FLD_REGION_PINCODES     = "sales_region_pincodes"
 	FLD_REGION_PINCODE_FROM = "pincode_from"
 	FLD_REGION_PINCODE_TO   = "pincode_to"
 
@@ -112,5 +112,8 @@ func GetServiceModuleCode() string {
 	return "SALES"
 }
 
+//
 // Indexes
-// db.sales_region.createIndex({"region_pincodes.pincode_from": 1}, {"region_pincodes.pincode_to": 1})
+//
+//
+// db.zc_sales_region.createIndex({"sales_region_pincodes.pincode_from": 1}, {"sales_region_pincodes.pincode_to": 1})

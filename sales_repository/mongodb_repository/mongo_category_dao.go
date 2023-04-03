@@ -104,7 +104,9 @@ func (t *CategoryMongoDBDao) List(filter string, sort string, skip int64, limit 
 		return nil, err
 	}
 
-	basefilterdoc := bson.D{{Key: sales_common.FLD_BUSINESS_ID, Value: t.businessId}}
+	basefilterdoc := bson.D{
+		{Key: sales_common.FLD_BUSINESS_ID, Value: t.businessId},
+		{Key: db_common.FLD_IS_DELETED, Value: false}}
 	totalcount, err := collection.CountDocuments(ctx, basefilterdoc)
 	if err != nil {
 		return nil, err
