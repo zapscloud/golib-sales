@@ -3,27 +3,30 @@ package sales_common
 import (
 	"log"
 
+	"github.com/zapscloud/golib-dbutils/db_common"
 	"github.com/zapscloud/golib-platform/platform_common"
 )
 
 // Product Module tables
 const (
-	DbRegion = "sales_region"
-	DbBanner = "sales_banner"
-
-	DbBrand         = "sales_brands"
-	DbCatalogue     = "sales_catalogue"
-	DbCategory      = "sales_category"
-	DbProduct       = "sales_products"
-	DbTestimonial   = "sales_testimonial"
-	DbBlog          = "sales_blog"
-	DbCustomer      = "sales_customer"
-	DbCustomerOrder = "sales_customer_order"
-	DbCustomerCart  = "sales_customer_cart"
-	DbPolicies      = "sales_policies"
-	DbPayment       = "sales_payment"
-	DbNavigation    = "sales_navigation"
-	DbPreference    = "sales_preference"
+	// Database Prefix
+	DbPrefix = db_common.DB_COLLECTION_PREFIX
+	// Collection Names
+	DbRegion        = DbPrefix + "sales_region"
+	DbBanner        = DbPrefix + "sales_banner"
+	DbBrand         = DbPrefix + "sales_brands"
+	DbCatalogue     = DbPrefix + "sales_catalogue"
+	DbCategory      = DbPrefix + "sales_category"
+	DbProduct       = DbPrefix + "sales_products"
+	DbTestimonial   = DbPrefix + "sales_testimonial"
+	DbBlog          = DbPrefix + "sales_blog"
+	DbCustomer      = DbPrefix + "sales_customer"
+	DbCustomerOrder = DbPrefix + "sales_customer_order"
+	DbCustomerCart  = DbPrefix + "sales_customer_cart"
+	DbPolicies      = DbPrefix + "sales_policies"
+	DbPayment       = DbPrefix + "sales_payment"
+	DbNavigation    = DbPrefix + "sales_navigation"
+	DbPreference    = DbPrefix + "sales_preference"
 )
 
 // Product Module table fields
