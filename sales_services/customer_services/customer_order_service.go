@@ -97,6 +97,7 @@ func (p *customerOrderBaseService) initializeService() {
 	log.Printf("customerOrderBaseService:: GetBusinessDao ")
 	p.daoCustomerOrder = customer_repository.NewCustomerOrderDao(p.GetClient(), p.businessId, p.customerId)
 	p.daoBusiness = platform_repository.NewBusinessDao(p.GetClient())
+	p.daoCustomer = sales_repository.NewCustomerDao(p.GetClient(), p.businessId)
 }
 
 // List - List All records
