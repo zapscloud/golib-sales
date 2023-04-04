@@ -73,9 +73,10 @@ const (
 	FLD_BLOG_ID   = "blog_id"
 	FLD_BLOG_NAME = "blog_name"
 
-	//Fields for Customerorder
-	FLD_CUSTOMER_ORDER_ID   = "Customer_order_id"
-	FLD_CUSTOMER_ORDER_NAME = "Customer_order_name"
+	//Fields for CustomerOrder
+	FLD_CUSTOMER_ORDER_ID   = "customer_order_id"
+	FLD_CUSTOMER_ORDER_NO   = "customer_order_no" // Auto generated Sequence Number
+	FLD_CUSTOMER_ORDER_NAME = "customer_order_name"
 
 	// Fields for Customer Table
 	FLD_CUSTOMER_ID       = "customer_id"
