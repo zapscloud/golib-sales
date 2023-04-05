@@ -78,6 +78,11 @@ func (t *CustomerOrderMongoDBDao) List(filter string, sort string, skip int64, l
 		bson.E{Key: sales_common.FLD_BUSINESS_ID, Value: t.businessId},
 		bson.E{Key: db_common.FLD_IS_DELETED, Value: false})
 
+	// Append customerId as filter if it available
+	if len(t.customerId) > 0 {
+		filterdoc = append(filterdoc, bson.E{Key: sales_common.FLD_CUSTOMER_ID, Value: t.customerId})
+	}
+
 	log.Println("Parameter values ", filterdoc, opts)
 	cursor, err := collection.Find(ctx, filterdoc, opts)
 	if err != nil {
@@ -108,8 +113,12 @@ func (t *CustomerOrderMongoDBDao) List(filter string, sort string, skip int64, l
 
 	basefilterdoc := bson.D{
 		{Key: sales_common.FLD_BUSINESS_ID, Value: t.businessId},
-		{Key: sales_common.FLD_CUSTOMER_ID, Value: t.customerId},
 		{Key: db_common.FLD_IS_DELETED, Value: false}}
+
+	// Append customerId as filter if it available
+	if len(t.customerId) > 0 {
+		basefilterdoc = append(basefilterdoc, bson.E{Key: sales_common.FLD_CUSTOMER_ID, Value: t.customerId})
+	}
 	totalcount, err := collection.CountDocuments(ctx, basefilterdoc)
 	if err != nil {
 		return nil, err
@@ -142,6 +151,11 @@ func (t *CustomerOrderMongoDBDao) Get(customerorderId string) (utils.Map, error)
 	filter = append(filter,
 		bson.E{Key: sales_common.FLD_BUSINESS_ID, Value: t.businessId},
 		bson.E{Key: db_common.FLD_IS_DELETED, Value: false})
+
+	// Append customerId as filter if it available
+	if len(t.customerId) > 0 {
+		filter = append(filter, bson.E{Key: sales_common.FLD_CUSTOMER_ID, Value: t.customerId})
+	}
 
 	log.Println("Get:: Got filter ", filter)
 	singleResult := collection.FindOne(ctx, filter)
@@ -180,6 +194,11 @@ func (p *CustomerOrderMongoDBDao) Find(filter string) (utils.Map, error) {
 	bfilter = append(bfilter,
 		bson.E{Key: sales_common.FLD_BUSINESS_ID, Value: p.businessId},
 		bson.E{Key: db_common.FLD_IS_DELETED, Value: false})
+
+	// Append customerId as filter if it available
+	if len(p.customerId) > 0 {
+		bfilter = append(bfilter, bson.E{Key: sales_common.FLD_CUSTOMER_ID, Value: p.customerId})
+	}
 
 	log.Println("Find:: Got filter ", bfilter)
 	singleResult := collection.FindOne(ctx, bfilter)

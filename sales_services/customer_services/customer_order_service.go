@@ -58,11 +58,11 @@ func NewCustomerOrderService(props utils.Map) (CustomerOrderService, error) {
 		return nil, err
 	}
 
-	// Verify whether the User id data passed
-	customerId, err := utils.IsMemberExist(props, sales_common.FLD_CUSTOMER_ID)
-	if err != nil {
-		return nil, err
-	}
+	// Verify whether the User id data passed, this is optional parameter
+	customerId, _ := utils.IsMemberExist(props, sales_common.FLD_CUSTOMER_ID)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	// Assign the BusinessId
 	p.businessId = businessId
@@ -76,10 +76,12 @@ func NewCustomerOrderService(props utils.Map) (CustomerOrderService, error) {
 	}
 
 	// Verify the Customer Exist
-	_, err = p.daoCustomer.Get(customerId)
-	if err != nil {
-		err := &utils.AppError{ErrorCode: funcode + "01", ErrorMsg: "Invalid CustomerId", ErrorDetail: "Given CustomerId is not exist"}
-		return nil, err
+	if len(customerId) > 0 {
+		_, err = p.daoCustomer.Get(customerId)
+		if err != nil {
+			err := &utils.AppError{ErrorCode: funcode + "01", ErrorMsg: "Invalid CustomerId", ErrorDetail: "Given CustomerId is not exist"}
+			return nil, err
+		}
 	}
 
 	p.child = &p
@@ -115,10 +117,10 @@ func (p *customerOrderBaseService) List(filter string, sort string, skip int64, 
 }
 
 // Get - Find By Code
-func (p *customerOrderBaseService) Get(customerorderId string) (utils.Map, error) {
-	log.Printf("customerOrderBaseService::Get::  Begin %v", customerorderId)
+func (p *customerOrderBaseService) Get(custOrderId string) (utils.Map, error) {
+	log.Printf("customerOrderBaseService::Get::  Begin %v", custOrderId)
 
-	data, err := p.daoCustomerOrder.Get(customerorderId)
+	data, err := p.daoCustomerOrder.Get(custOrderId)
 
 	log.Println("customerOrderBaseService::Get:: End ", data, err)
 	return data, err
@@ -136,19 +138,20 @@ func (p *customerOrderBaseService) Find(filter string) (utils.Map, error) {
 func (p *customerOrderBaseService) Create(indata utils.Map) (utils.Map, error) {
 
 	log.Println("customerOrderBaseService::Create - Begin")
-	var customerorderId string
+	var custOrderId string
 
 	dataval, dataok := indata[sales_common.FLD_CUSTOMER_ORDER_ID]
 	if dataok {
-		customerorderId = strings.ToLower(dataval.(string))
+		custOrderId = strings.ToLower(dataval.(string))
 	} else {
-		customerorderId = utils.GenerateUniqueId("c_order")
-		log.Println("Unique customerOrder ID", customerorderId)
+		custOrderId = utils.GenerateUniqueId("cust_order")
+		log.Println("Unique customerOrder ID", custOrderId)
 	}
 
 	// Assign BusinessId
 	indata[sales_common.FLD_BUSINESS_ID] = p.businessId
-	indata[sales_common.FLD_CUSTOMER_ORDER_ID] = customerorderId
+	indata[sales_common.FLD_CUSTOMER_ID] = p.customerId
+	indata[sales_common.FLD_CUSTOMER_ORDER_ID] = custOrderId
 
 	data, err := p.daoCustomerOrder.Create(indata)
 	if err != nil {
@@ -160,30 +163,35 @@ func (p *customerOrderBaseService) Create(indata utils.Map) (utils.Map, error) {
 }
 
 // Update - Update Service
-func (p *customerOrderBaseService) Update(customerorderId string, indata utils.Map) (utils.Map, error) {
+func (p *customerOrderBaseService) Update(custOrderId string, indata utils.Map) (utils.Map, error) {
 
 	log.Println("customerOrderService::Update - Begin")
 
-	data, err := p.daoCustomerOrder.Update(customerorderId, indata)
+	// Delete Key values
+	delete(indata, sales_common.FLD_BUSINESS_ID)
+	delete(indata, sales_common.FLD_CUSTOMER_ID)
+	delete(indata, sales_common.FLD_CUSTOMER_ORDER_ID)
+
+	data, err := p.daoCustomerOrder.Update(custOrderId, indata)
 
 	log.Println("customerOrderService::Update - End ")
 	return data, err
 }
 
 // Delete - Delete Service
-func (p *customerOrderBaseService) Delete(customerorderId string, delete_permanent bool) error {
+func (p *customerOrderBaseService) Delete(custOrderId string, delete_permanent bool) error {
 
-	log.Println("customerOrderService::Delete - Begin", customerorderId)
+	log.Println("customerOrderService::Delete - Begin", custOrderId)
 
 	if delete_permanent {
-		result, err := p.daoCustomerOrder.Delete(customerorderId)
+		result, err := p.daoCustomerOrder.Delete(custOrderId)
 		if err != nil {
 			return err
 		}
 		log.Printf("Delete %v", result)
 	} else {
 		indata := utils.Map{db_common.FLD_IS_DELETED: true}
-		data, err := p.Update(customerorderId, indata)
+		data, err := p.Update(custOrderId, indata)
 		if err != nil {
 			return err
 		}
