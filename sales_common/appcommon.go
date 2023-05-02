@@ -92,8 +92,9 @@ const (
 	FLD_PAYMENT_NAME = "payment_name"
 
 	// Fields for Policies
-	FLD_POLICIES_ID   = "policies_id"
-	FLD_POLICIES_NAME = "policies_name"
+	FLD_POLICY_ID   = "policy_id"
+	FLD_POLICY_TYPE = "policy_type"
+	FLD_POLICY_NAME = "policy_name"
 
 	// Fields for Navigation
 	FLD_NAVIGATION_ID   = "navigation_id"

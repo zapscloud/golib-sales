@@ -18,15 +18,15 @@ type PoliciesService interface {
 	// List - List All records
 	List(filter string, sort string, skip int64, limit int64) (utils.Map, error)
 	// Get - Find By Code
-	Get(policiesId string) (utils.Map, error)
+	Get(policyId string) (utils.Map, error)
 	// Find - Find the item
 	Find(filter string) (utils.Map, error)
 	// Create - Create Service
 	Create(indata utils.Map) (utils.Map, error)
 	// Update - Update Service
-	Update(policiesId string, indata utils.Map) (utils.Map, error)
+	Update(policyId string, indata utils.Map) (utils.Map, error)
 	// Delete - Delete Service
-	Delete(policiesId string, delete_permanent bool) error
+	Delete(policyId string, delete_permanent bool) error
 
 	EndService()
 }
@@ -101,10 +101,10 @@ func (p *policiesBaseService) List(filter string, sort string, skip int64, limit
 }
 
 // Get - Find By Code
-func (p *policiesBaseService) Get(policiesId string) (utils.Map, error) {
-	log.Printf("PoliciesService::Get::  Begin %v", policiesId)
+func (p *policiesBaseService) Get(policyId string) (utils.Map, error) {
+	log.Printf("PoliciesService::Get::  Begin %v", policyId)
 
-	data, err := p.daoPolicies.Get(policiesId)
+	data, err := p.daoPolicies.Get(policyId)
 
 	log.Println("PoliciesService::Get:: End ", data, err)
 	return data, err
@@ -122,19 +122,25 @@ func (p *policiesBaseService) Find(filter string) (utils.Map, error) {
 func (p *policiesBaseService) Create(indata utils.Map) (utils.Map, error) {
 
 	log.Println("PoliciesService::Create - Begin")
-	var policiesId string
+	var policyId string
 
-	dataval, dataok := indata[sales_common.FLD_POLICIES_ID]
+	dataval, dataok := indata[sales_common.FLD_POLICY_ID]
 	if dataok {
-		policiesId = strings.ToLower(dataval.(string))
+		policyId = strings.ToLower(dataval.(string))
 	} else {
-		policiesId = utils.GenerateUniqueId("pol")
-		log.Println("Unique Policies ID", policiesId)
+		policyId = utils.GenerateUniqueId("pol")
+		log.Println("Unique Policies ID", policyId)
 	}
 
-	//BusinessPolicies
+	// Change the PolicyType to Uppercase
+	dataval, dataok = indata[sales_common.FLD_POLICY_TYPE]
+	if dataok {
+		indata[sales_common.FLD_POLICY_TYPE] = strings.ToUpper(dataval.(string))
+	}
+
+	// Business Policies
 	indata[sales_common.FLD_BUSINESS_ID] = p.businessId
-	indata[sales_common.FLD_POLICIES_ID] = policiesId
+	indata[sales_common.FLD_POLICY_ID] = policyId
 
 	data, err := p.daoPolicies.Create(indata)
 	if err != nil {
@@ -146,30 +152,30 @@ func (p *policiesBaseService) Create(indata utils.Map) (utils.Map, error) {
 }
 
 // Update - Update Service
-func (p *policiesBaseService) Update(policiesId string, indata utils.Map) (utils.Map, error) {
+func (p *policiesBaseService) Update(policyId string, indata utils.Map) (utils.Map, error) {
 
 	log.Println("BusinessPoliciesService::Update - Begin")
 
-	data, err := p.daoPolicies.Update(policiesId, indata)
+	data, err := p.daoPolicies.Update(policyId, indata)
 
 	log.Println("PoliciesService::Update - End")
 	return data, err
 }
 
 // Delete - Delete Service
-func (p *policiesBaseService) Delete(policiesId string, delete_permanent bool) error {
+func (p *policiesBaseService) Delete(policyId string, delete_permanent bool) error {
 
-	log.Println("PoliciesService::Delete - Begin", policiesId)
+	log.Println("PoliciesService::Delete - Begin", policyId)
 
 	if delete_permanent {
-		result, err := p.daoPolicies.Delete(policiesId)
+		result, err := p.daoPolicies.Delete(policyId)
 		if err != nil {
 			return err
 		}
 		log.Printf("Delete %v", result)
 	} else {
 		indata := utils.Map{db_common.FLD_IS_DELETED: true}
-		data, err := p.Update(policiesId, indata)
+		data, err := p.Update(policyId, indata)
 		if err != nil {
 			return err
 		}

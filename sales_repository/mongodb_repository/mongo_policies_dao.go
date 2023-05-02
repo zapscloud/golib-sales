@@ -134,7 +134,7 @@ func (t *PoliciesMongoDBDao) Get(policiesId string) (utils.Map, error) {
 	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbPolicies)
 	log.Println("Get:: Got Collection ")
 
-	filter := bson.D{{Key: sales_common.FLD_POLICIES_ID, Value: policiesId}, {}}
+	filter := bson.D{{Key: sales_common.FLD_POLICY_ID, Value: policiesId}, {}}
 
 	filter = append(filter,
 		bson.E{Key: sales_common.FLD_BUSINESS_ID, Value: t.businessId},
@@ -217,9 +217,9 @@ func (t *PoliciesMongoDBDao) Create(indata utils.Map) (utils.Map, error) {
 
 	}
 	log.Println("Inserted a single document: ", insertResult1.InsertedID)
-	log.Println("Save - End", indata[sales_common.FLD_POLICIES_ID])
+	log.Println("Save - End", indata[sales_common.FLD_POLICY_ID])
 
-	return t.Get(indata[sales_common.FLD_POLICIES_ID].(string))
+	return t.Get(indata[sales_common.FLD_POLICY_ID].(string))
 }
 
 // Update - Update Collection
@@ -236,7 +236,7 @@ func (t *PoliciesMongoDBDao) Update(policiesId string, indata utils.Map) (utils.
 	indata = db_common.AmendFldsforUpdate(indata)
 	log.Printf("Update - Values %v", indata)
 
-	filterPolicies := bson.D{{Key: sales_common.FLD_POLICIES_ID, Value: policiesId}}
+	filterPolicies := bson.D{{Key: sales_common.FLD_POLICY_ID, Value: policiesId}}
 	updateResult1, err := collection.UpdateOne(ctx, filterPolicies, bson.D{{Key: "$set", Value: indata}})
 	if err != nil {
 		return utils.Map{}, err
@@ -263,7 +263,7 @@ func (t *PoliciesMongoDBDao) Delete(policiesId string) (int64, error) {
 		CaseLevel: false,
 	})
 
-	filterPolicies := bson.D{{Key: sales_common.FLD_POLICIES_ID, Value: policiesId}}
+	filterPolicies := bson.D{{Key: sales_common.FLD_POLICY_ID, Value: policiesId}}
 	resPolicies, err := collection.DeleteOne(ctx, filterPolicies, optsPolicies)
 	if err != nil {
 		log.Println("Error in delete ", err)
