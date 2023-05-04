@@ -105,6 +105,14 @@ const (
 	// Fields for Preference
 	FLD_PREFERENCE_ID   = "preference_id"
 	FLD_PREFERENCE_NAME = "preference_name"
+
+	// Fields for AboutUs
+	FLD_ABOUTUS_ID   = "aboutus_id"
+	FLD_ABOUTUS_NAME = "aboutus_name"
+
+	// Fields for AboutUs
+	FLD_DEALER_ID   = "dealer_id"
+	FLD_DEALER_NAME = "dealer_name"
 )
 
 func init() {
