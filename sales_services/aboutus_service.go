@@ -124,7 +124,7 @@ func (p *aboutusBaseService) Create(indata utils.Map) (utils.Map, error) {
 	if dataok {
 		aboutusId = strings.ToLower(dataval.(string))
 	} else {
-		aboutusId = utils.GenerateUniqueId("brnd")
+		aboutusId = utils.GenerateUniqueId("abtus")
 		log.Println("Unique AboutUs ID", aboutusId)
 	}
 

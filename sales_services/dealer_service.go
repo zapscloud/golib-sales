@@ -124,7 +124,7 @@ func (p *dealerBaseService) Create(indata utils.Map) (utils.Map, error) {
 	if dataok {
 		dealerId = strings.ToLower(dataval.(string))
 	} else {
-		dealerId = utils.GenerateUniqueId("brnd")
+		dealerId = utils.GenerateUniqueId("dealr")
 		log.Println("Unique Dealer ID", dealerId)
 	}
 
