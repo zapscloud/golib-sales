@@ -107,10 +107,10 @@ func (p *dealerBaseService) Get(dealerId string) (utils.Map, error) {
 }
 
 func (p *dealerBaseService) Find(filter string) (utils.Map, error) {
-	fmt.Println("brandService::FindByCode::  Begin ", filter)
+	fmt.Println("dealerService::FindByCode::  Begin ", filter)
 
 	data, err := p.daoDealer.Find(filter)
-	log.Println("brandService::FindByCode:: End ", data, err)
+	log.Println("dealerService::FindByCode:: End ", data, err)
 	return data, err
 }
 
@@ -120,7 +120,7 @@ func (p *dealerBaseService) Create(indata utils.Map) (utils.Map, error) {
 	log.Println("DealerService::Create - Begin")
 	var dealerId string
 
-	dataval, dataok := indata[sales_common.FLD_BRAND_ID]
+	dataval, dataok := indata[sales_common.FLD_DEALER_ID]
 	if dataok {
 		dealerId = strings.ToLower(dataval.(string))
 	} else {
@@ -130,7 +130,7 @@ func (p *dealerBaseService) Create(indata utils.Map) (utils.Map, error) {
 
 	// Assign BusinessId
 	indata[sales_common.FLD_BUSINESS_ID] = p.businessId
-	indata[sales_common.FLD_BRAND_ID] = dealerId
+	indata[sales_common.FLD_DEALER_ID] = dealerId
 
 	data, err := p.daoDealer.Create(indata)
 	if err != nil {

@@ -107,10 +107,10 @@ func (p *aboutusBaseService) Get(aboutusId string) (utils.Map, error) {
 }
 
 func (p *aboutusBaseService) Find(filter string) (utils.Map, error) {
-	fmt.Println("brandService::FindByCode::  Begin ", filter)
+	fmt.Println("aboutusBaseService::FindByCode::  Begin ", filter)
 
 	data, err := p.daoAboutUs.Find(filter)
-	log.Println("brandService::FindByCode:: End ", data, err)
+	log.Println("aboutusBaseService::FindByCode:: End ", data, err)
 	return data, err
 }
 
@@ -120,7 +120,7 @@ func (p *aboutusBaseService) Create(indata utils.Map) (utils.Map, error) {
 	log.Println("AboutUsService::Create - Begin")
 	var aboutusId string
 
-	dataval, dataok := indata[sales_common.FLD_BRAND_ID]
+	dataval, dataok := indata[sales_common.FLD_ABOUTUS_ID]
 	if dataok {
 		aboutusId = strings.ToLower(dataval.(string))
 	} else {
@@ -130,7 +130,7 @@ func (p *aboutusBaseService) Create(indata utils.Map) (utils.Map, error) {
 
 	// Assign BusinessId
 	indata[sales_common.FLD_BUSINESS_ID] = p.businessId
-	indata[sales_common.FLD_BRAND_ID] = aboutusId
+	indata[sales_common.FLD_ABOUTUS_ID] = aboutusId
 
 	data, err := p.daoAboutUs.Create(indata)
 	if err != nil {
