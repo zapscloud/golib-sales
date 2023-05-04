@@ -27,6 +27,8 @@ const (
 	DbPayment       = DbPrefix + "sales_payment"
 	DbNavigation    = DbPrefix + "sales_navigation"
 	DbPreference    = DbPrefix + "sales_preference"
+	DbAboutUs       = DbPrefix + "sales_aboutus"
+	DbDealer        = DbPrefix + "sales_dealer"
 )
 
 // Product Module table fields
