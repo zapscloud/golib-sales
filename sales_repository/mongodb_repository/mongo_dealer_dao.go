@@ -134,7 +134,7 @@ func (p *DealerMongoDBDao) Get(dealerId string) (utils.Map, error) {
 	collection, ctx, err := mongo_utils.GetMongoDbCollection(p.client, sales_common.DbDealer)
 	log.Println("Get:: Got Collection ")
 
-	filter := bson.D{{Key: sales_common.FLD_BRAND_ID, Value: dealerId}, {}}
+	filter := bson.D{{Key: sales_common.FLD_DEALER_ID, Value: dealerId}, {}}
 
 	filter = append(filter,
 		bson.E{Key: sales_common.FLD_BUSINESS_ID, Value: p.businessId},
@@ -201,7 +201,7 @@ func (p *DealerMongoDBDao) Find(filter string) (utils.Map, error) {
 func (t *DealerMongoDBDao) Create(indata utils.Map) (utils.Map, error) {
 
 	log.Println("Dealer Save - Begin", indata)
-	//Business_brand
+	//Business_dealer
 	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbDealer)
 	if err != nil {
 		log.Println("Error in insert ", err)
@@ -217,9 +217,9 @@ func (t *DealerMongoDBDao) Create(indata utils.Map) (utils.Map, error) {
 
 	}
 	log.Println("Inserted a single document: ", insertResult1.InsertedID)
-	log.Println("Save - End", indata[sales_common.FLD_BRAND_ID])
+	log.Println("Save - End", indata[sales_common.FLD_DEALER_ID])
 
-	return t.Get(indata[sales_common.FLD_BRAND_ID].(string))
+	return t.Get(indata[sales_common.FLD_DEALER_ID].(string))
 }
 
 // Update - Update Collection
@@ -227,7 +227,7 @@ func (t *DealerMongoDBDao) Update(dealerId string, indata utils.Map) (utils.Map,
 
 	log.Println("Update - Begin")
 
-	//brand
+	//dealer
 	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbDealer)
 	if err != nil {
 		return utils.Map{}, err
@@ -236,7 +236,7 @@ func (t *DealerMongoDBDao) Update(dealerId string, indata utils.Map) (utils.Map,
 	indata = db_common.AmendFldsforUpdate(indata)
 	log.Printf("Update - Values %v", indata)
 
-	filterDealer := bson.D{{Key: sales_common.FLD_BRAND_ID, Value: dealerId}}
+	filterDealer := bson.D{{Key: sales_common.FLD_DEALER_ID, Value: dealerId}}
 	updateResult1, err := collection.UpdateOne(ctx, filterDealer, bson.D{{Key: "$set", Value: indata}})
 	if err != nil {
 		return utils.Map{}, err
@@ -263,7 +263,7 @@ func (t *DealerMongoDBDao) Delete(dealerId string) (int64, error) {
 		CaseLevel: false,
 	})
 
-	filterDealer := bson.D{{Key: sales_common.FLD_BRAND_ID, Value: dealerId}}
+	filterDealer := bson.D{{Key: sales_common.FLD_DEALER_ID, Value: dealerId}}
 	resDealer, err := collection.DeleteOne(ctx, filterDealer, optsDealer)
 	if err != nil {
 		log.Println("Error in delete ", err)
