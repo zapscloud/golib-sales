@@ -12,8 +12,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// WishlistMongoDBDao - Wishlist DAO Repository
-type WishlistMongoDBDao struct {
+// CustomerWishlistMongoDBDao - CustomerWishlist DAO Repository
+type CustomerWishlistMongoDBDao struct {
 	client     utils.Map
 	businessId string
 	customerId string
@@ -23,20 +23,20 @@ func init() {
 	log.SetFlags(log.Lshortfile | log.LstdFlags | log.Lmicroseconds)
 }
 
-func (p *WishlistMongoDBDao) InitializeDao(client utils.Map, businessId string, customerId string) {
-	log.Println("Initialize Wishlist Mongodb DAO")
+func (p *CustomerWishlistMongoDBDao) InitializeDao(client utils.Map, businessId string, customerId string) {
+	log.Println("Initialize CustomerWishlist Mongodb DAO")
 	p.client = client
 	p.businessId = businessId
 	p.customerId = customerId
 }
 
 // List - List all Collections
-func (t *WishlistMongoDBDao) List(filter string, sort string, skip int64, limit int64) (utils.Map, error) {
+func (t *CustomerWishlistMongoDBDao) List(filter string, sort string, skip int64, limit int64) (utils.Map, error) {
 	var results []utils.Map
 
-	log.Println("Begin - Find All Collection Dao", sales_common.DbWishlist)
+	log.Println("Begin - Find All Collection Dao", sales_common.DbCustomerWishlist)
 
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbWishlist)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCustomerWishlist)
 	if err != nil {
 		return nil, err
 	}
@@ -138,13 +138,13 @@ func (t *WishlistMongoDBDao) List(filter string, sort string, skip int64, limit 
 }
 
 // Get - Get by code
-func (p *WishlistMongoDBDao) Get(wishlistId string) (utils.Map, error) {
+func (p *CustomerWishlistMongoDBDao) Get(wishlistId string) (utils.Map, error) {
 	// Get a single document
 	var result utils.Map
 
-	log.Println("WishlistMongoDBDao::Get:: Begin ", wishlistId)
+	log.Println("CustomerWishlistMongoDBDao::Get:: Begin ", wishlistId)
 
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(p.client, sales_common.DbWishlist)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(p.client, sales_common.DbCustomerWishlist)
 	log.Println("Get:: Got Collection ")
 
 	filter := bson.D{{Key: sales_common.FLD_WISHLIST_ID, Value: wishlistId}, {}}
@@ -173,18 +173,18 @@ func (p *WishlistMongoDBDao) Get(wishlistId string) (utils.Map, error) {
 	// Remove fields from result
 	result = db_common.AmendFldsForGet(result)
 
-	log.Printf("Business WishlistMongoDBDao::Get:: End Found a single document: %+v\n", result)
+	log.Printf("Business CustomerWishlistMongoDBDao::Get:: End Found a single document: %+v\n", result)
 	return result, nil
 }
 
 // Find - Find by Filter
-func (p *WishlistMongoDBDao) Find(filter string) (utils.Map, error) {
+func (p *CustomerWishlistMongoDBDao) Find(filter string) (utils.Map, error) {
 	// Find a single document
 	var result utils.Map
 
-	log.Println("WishlistDBDao::Find:: Begin ", filter)
+	log.Println("CustomerWishlistDBDao::Find:: Begin ", filter)
 
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(p.client, sales_common.DbWishlist)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(p.client, sales_common.DbCustomerWishlist)
 	log.Println("Find:: Got Collection ", err)
 
 	bfilter := bson.D{}
@@ -216,16 +216,16 @@ func (p *WishlistMongoDBDao) Find(filter string) (utils.Map, error) {
 	// Remove fields from result
 	result = db_common.AmendFldsForGet(result)
 
-	log.Println("WishlistDBDao::Find:: End Found a single document: \n", err)
+	log.Println("CustomerWishlistDBDao::Find:: End Found a single document: \n", err)
 	return result, nil
 }
 
 // Create - Create Collection
-func (t *WishlistMongoDBDao) Create(indata utils.Map) (utils.Map, error) {
+func (t *CustomerWishlistMongoDBDao) Create(indata utils.Map) (utils.Map, error) {
 
-	log.Println("Wishlist Save - Begin", indata)
+	log.Println("CustomerWishlist Save - Begin", indata)
 	//Business_wishlist
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbWishlist)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCustomerWishlist)
 	if err != nil {
 		log.Println("Error in insert ", err)
 		return utils.Map{}, err
@@ -246,12 +246,12 @@ func (t *WishlistMongoDBDao) Create(indata utils.Map) (utils.Map, error) {
 }
 
 // Update - Update Collection
-func (t *WishlistMongoDBDao) Update(wishlistId string, indata utils.Map) (utils.Map, error) {
+func (t *CustomerWishlistMongoDBDao) Update(wishlistId string, indata utils.Map) (utils.Map, error) {
 
 	log.Println("Update - Begin")
 
 	//wishlist
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbWishlist)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCustomerWishlist)
 	if err != nil {
 		return utils.Map{}, err
 	}
@@ -259,8 +259,8 @@ func (t *WishlistMongoDBDao) Update(wishlistId string, indata utils.Map) (utils.
 	indata = db_common.AmendFldsforUpdate(indata)
 	log.Printf("Update - Values %v", indata)
 
-	filterWishlist := bson.D{{Key: sales_common.FLD_WISHLIST_ID, Value: wishlistId}}
-	updateResult1, err := collection.UpdateOne(ctx, filterWishlist, bson.D{{Key: "$set", Value: indata}})
+	filterCustomerWishlist := bson.D{{Key: sales_common.FLD_WISHLIST_ID, Value: wishlistId}}
+	updateResult1, err := collection.UpdateOne(ctx, filterCustomerWishlist, bson.D{{Key: "$set", Value: indata}})
 	if err != nil {
 		return utils.Map{}, err
 	}
@@ -271,27 +271,27 @@ func (t *WishlistMongoDBDao) Update(wishlistId string, indata utils.Map) (utils.
 }
 
 // Delete - Delete Collection
-func (t *WishlistMongoDBDao) Delete(wishlistId string) (int64, error) {
+func (t *CustomerWishlistMongoDBDao) Delete(wishlistId string) (int64, error) {
 
-	log.Println("WishlistMongoDBDao::Delete - Begin ", wishlistId)
+	log.Println("CustomerWishlistMongoDBDao::Delete - Begin ", wishlistId)
 
-	//BusinessWishlist
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbWishlist)
+	//BusinessCustomerWishlist
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCustomerWishlist)
 	if err != nil {
 		return 0, err
 	}
-	optsWishlist := options.Delete().SetCollation(&options.Collation{
+	optsCustomerWishlist := options.Delete().SetCollation(&options.Collation{
 		Locale:    db_common.LOCALE,
 		Strength:  1,
 		CaseLevel: false,
 	})
 
-	filterWishlist := bson.D{{Key: sales_common.FLD_WISHLIST_ID, Value: wishlistId}}
-	resWishlist, err := collection.DeleteOne(ctx, filterWishlist, optsWishlist)
+	filterCustomerWishlist := bson.D{{Key: sales_common.FLD_WISHLIST_ID, Value: wishlistId}}
+	resCustomerWishlist, err := collection.DeleteOne(ctx, filterCustomerWishlist, optsCustomerWishlist)
 	if err != nil {
 		log.Println("Error in delete ", err)
 		return 0, err
 	}
-	log.Printf("WishlistMongoDBDao::Delete - End deleted %v documents\n", resWishlist.DeletedCount)
-	return resWishlist.DeletedCount, nil
+	log.Printf("CustomerWishlistMongoDBDao::Delete - End deleted %v documents\n", resCustomerWishlist.DeletedCount)
+	return resCustomerWishlist.DeletedCount, nil
 }
