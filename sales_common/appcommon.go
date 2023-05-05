@@ -31,6 +31,7 @@ const (
 	DbDealer        = DbPrefix + "sales_dealer"
 	DbReview        = DbPrefix + "sales_review"
 	DbWishlist      = DbPrefix + "sales_wishlist"
+	DbMedia         = DbPrefix + "sales_media"
 )
 
 // Product Module table fields
@@ -120,6 +121,9 @@ const (
 
 	// Fields for WhishList
 	FLD_WISHLIST_ID = "wishlist_id"
+
+	// Fields for Media
+	FLD_MEDIA_ID = "media_id"
 )
 
 func init() {
