@@ -1,15 +1,15 @@
-package sales_repository
+package customer_repository
 
 import (
 	"github.com/zapscloud/golib-dbutils/db_common"
-	"github.com/zapscloud/golib-sales/sales_repository/mongodb_repository"
+	"github.com/zapscloud/golib-sales/sales_repository/mongodb_repository/customer_mongodb_repository"
 	"github.com/zapscloud/golib-utils/utils"
 )
 
 // WishlistDao - Card DAO Repository
 type WishlistDao interface {
 	// InitializeDao
-	InitializeDao(client utils.Map, businessId string)
+	InitializeDao(client utils.Map, businessId string, customerId string)
 	//List - List all Collections
 	List(filter string, sort string, skip int64, limit int64) (utils.Map, error)
 	// Get - Get by code
@@ -25,7 +25,7 @@ type WishlistDao interface {
 }
 
 // NewWishlistDao - Contruct Business Wishlist Dao
-func NewWishlistDao(client utils.Map, business_id string) WishlistDao {
+func NewWishlistDao(client utils.Map, business_id string, customerId string) WishlistDao {
 	var daoWishlist WishlistDao = nil
 
 	// Get DatabaseType and no need to validate error
@@ -34,7 +34,7 @@ func NewWishlistDao(client utils.Map, business_id string) WishlistDao {
 
 	switch dbType {
 	case db_common.DATABASE_TYPE_MONGODB:
-		daoWishlist = &mongodb_repository.WishlistMongoDBDao{}
+		daoWishlist = &customer_mongodb_repository.WishlistMongoDBDao{}
 	case db_common.DATABASE_TYPE_ZAPSDB:
 		// *Not Implemented yet*
 	case db_common.DATABASE_TYPE_MYSQLDB:
@@ -43,7 +43,7 @@ func NewWishlistDao(client utils.Map, business_id string) WishlistDao {
 
 	if daoWishlist != nil {
 		// Initialize the Dao
-		daoWishlist.InitializeDao(client, business_id)
+		daoWishlist.InitializeDao(client, business_id, customerId)
 	}
 
 	return daoWishlist

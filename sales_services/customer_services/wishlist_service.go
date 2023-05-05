@@ -1,4 +1,4 @@
-package sales_services
+package customer_services
 
 import (
 	"fmt"
@@ -10,6 +10,7 @@ import (
 	"github.com/zapscloud/golib-platform/platform_repository"
 	"github.com/zapscloud/golib-sales/sales_common"
 	"github.com/zapscloud/golib-sales/sales_repository"
+	"github.com/zapscloud/golib-sales/sales_repository/customer_repository"
 
 	"github.com/zapscloud/golib-utils/utils"
 )
@@ -33,10 +34,13 @@ type WishlistService interface {
 
 type wishlistBaseService struct {
 	db_utils.DatabaseService
-	daoWishlist sales_repository.WishlistDao
+	daoWishlist customer_repository.WishlistDao
 	daoBusiness platform_repository.BusinessDao
-	child       WishlistService
-	businessId  string
+	daoCustomer sales_repository.CustomerDao
+
+	child      WishlistService
+	businessId string
+	customerId string
 }
 
 // NewWishlistService - Construct Wishlist
@@ -54,15 +58,30 @@ func NewWishlistService(props utils.Map) (WishlistService, error) {
 	if err != nil {
 		return nil, err
 	}
+	// Verify whether the User id data passed, this is optional parameter
+	customerId, _ := utils.IsMemberExist(props, sales_common.FLD_CUSTOMER_ID)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	// Assign the BusinessId
 	p.businessId = businessId
+	p.customerId = customerId
 	p.initializeService()
 
 	_, err = p.daoBusiness.GetDetails(businessId)
 	if err != nil {
 		err := &utils.AppError{ErrorCode: funcode + "01", ErrorMsg: "Invalid business_id", ErrorDetail: "Given app_business_id is not exist"}
 		return nil, err
+	}
+
+	// Verify the Customer Exist
+	if len(customerId) > 0 {
+		_, err = p.daoCustomer.Get(customerId)
+		if err != nil {
+			err := &utils.AppError{ErrorCode: funcode + "01", ErrorMsg: "Invalid CustomerId", ErrorDetail: "Given CustomerId is not exist"}
+			return nil, err
+		}
 	}
 
 	p.child = &p
@@ -78,8 +97,9 @@ func (p *wishlistBaseService) EndService() {
 
 func (p *wishlistBaseService) initializeService() {
 	log.Printf("WishlistService:: GetBusinessDao ")
-	p.daoWishlist = sales_repository.NewWishlistDao(p.GetClient(), p.businessId)
+	p.daoWishlist = customer_repository.NewWishlistDao(p.GetClient(), p.businessId, p.customerId)
 	p.daoBusiness = platform_repository.NewBusinessDao(p.GetClient())
+	p.daoCustomer = sales_repository.NewCustomerDao(p.GetClient(), p.businessId)
 }
 
 // List - List All records
@@ -130,6 +150,7 @@ func (p *wishlistBaseService) Create(indata utils.Map) (utils.Map, error) {
 
 	// Assign BusinessId
 	indata[sales_common.FLD_BUSINESS_ID] = p.businessId
+	indata[sales_common.FLD_CUSTOMER_ID] = p.customerId
 	indata[sales_common.FLD_WISHLIST_ID] = wishlistId
 
 	data, err := p.daoWishlist.Create(indata)
@@ -145,6 +166,11 @@ func (p *wishlistBaseService) Create(indata utils.Map) (utils.Map, error) {
 func (p *wishlistBaseService) Update(wishlistId string, indata utils.Map) (utils.Map, error) {
 
 	log.Println("WishlistService::Update - Begin")
+
+	// Delete Key values
+	delete(indata, sales_common.FLD_BUSINESS_ID)
+	delete(indata, sales_common.FLD_CUSTOMER_ID)
+	delete(indata, sales_common.FLD_WISHLIST_ID)
 
 	data, err := p.daoWishlist.Update(wishlistId, indata)
 
