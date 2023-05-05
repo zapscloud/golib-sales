@@ -29,6 +29,8 @@ const (
 	DbPreference    = DbPrefix + "sales_preference"
 	DbAboutUs       = DbPrefix + "sales_aboutus"
 	DbDealer        = DbPrefix + "sales_dealer"
+	DbReview        = DbPrefix + "sales_review"
+	DbWishlist      = DbPrefix + "sales_wishlist"
 )
 
 // Product Module table fields
@@ -107,12 +109,17 @@ const (
 	FLD_PREFERENCE_NAME = "preference_name"
 
 	// Fields for AboutUs
-	FLD_ABOUTUS_ID   = "aboutus_id"
-	FLD_ABOUTUS_NAME = "aboutus_name"
+	FLD_ABOUTUS_ID = "aboutus_id"
 
 	// Fields for AboutUs
 	FLD_DEALER_ID   = "dealer_id"
 	FLD_DEALER_NAME = "dealer_name"
+
+	// Fields for Review/Feedback
+	FLD_REVIEW_ID = "review_id"
+
+	// Fields for WhishList
+	FLD_WISHLIST_ID = "wishlist_id"
 )
 
 func init() {
