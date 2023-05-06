@@ -24,13 +24,13 @@ const (
 	DbCustomerOrder    = DbPrefix + "sales_customer_order"
 	DbCustomerCart     = DbPrefix + "sales_customer_cart"
 	DbCustomerWishlist = DbPrefix + "sales_customer_wishlist"
+	DbCustomerReview   = DbPrefix + "sales_customer_review"
 	DbPolicies         = DbPrefix + "sales_policies"
 	DbPayment          = DbPrefix + "sales_payment"
 	DbNavigation       = DbPrefix + "sales_navigation"
 	DbPreference       = DbPrefix + "sales_preference"
 	DbAboutUs          = DbPrefix + "sales_aboutus"
 	DbDealer           = DbPrefix + "sales_dealer"
-	DbReview           = DbPrefix + "sales_review"
 
 	DbMedia = DbPrefix + "sales_media"
 )
