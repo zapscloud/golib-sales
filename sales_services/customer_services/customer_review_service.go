@@ -19,15 +19,15 @@ type CustomerReviewService interface {
 	// List - List All records
 	List(filter string, sort string, skip int64, limit int64) (utils.Map, error)
 	// Get - Find By Code
-	Get(wishlistId string) (utils.Map, error)
+	Get(reviewId string) (utils.Map, error)
 	// Find - Find the item
 	Find(filter string) (utils.Map, error)
 	// Create - Create Service
 	Create(indata utils.Map) (utils.Map, error)
 	// Update - Update Service
-	Update(wishlistId string, indata utils.Map) (utils.Map, error)
+	Update(reviewId string, indata utils.Map) (utils.Map, error)
 	// Delete - Delete Service
-	Delete(wishlistId string, delete_permanent bool) error
+	Delete(reviewId string, delete_permanent bool) error
 
 	EndService()
 }
@@ -117,10 +117,10 @@ func (p *customerreviewBaseService) List(filter string, sort string, skip int64,
 }
 
 // Get - Find By Code
-func (p *customerreviewBaseService) Get(wishlistId string) (utils.Map, error) {
-	log.Printf("customerreviewBaseService::Get::  Begin %v", wishlistId)
+func (p *customerreviewBaseService) Get(reviewId string) (utils.Map, error) {
+	log.Printf("customerreviewBaseService::Get::  Begin %v", reviewId)
 
-	data, err := p.daoCustomerReview.Get(wishlistId)
+	data, err := p.daoCustomerReview.Get(reviewId)
 
 	log.Println("customerreviewBaseService::Get:: End ", data, err)
 	return data, err
@@ -138,20 +138,20 @@ func (p *customerreviewBaseService) Find(filter string) (utils.Map, error) {
 func (p *customerreviewBaseService) Create(indata utils.Map) (utils.Map, error) {
 
 	log.Println("CustomerReviewService::Create - Begin")
-	var wishlistId string
+	var reviewId string
 
-	dataval, dataok := indata[sales_common.FLD_WISHLIST_ID]
+	dataval, dataok := indata[sales_common.FLD_REVIEW_ID]
 	if dataok {
-		wishlistId = strings.ToLower(dataval.(string))
+		reviewId = strings.ToLower(dataval.(string))
 	} else {
-		wishlistId = utils.GenerateUniqueId("wish")
-		log.Println("Unique CustomerReview ID", wishlistId)
+		reviewId = utils.GenerateUniqueId("reviw")
+		log.Println("Unique CustomerReview ID", reviewId)
 	}
 
 	// Assign BusinessId
 	indata[sales_common.FLD_BUSINESS_ID] = p.businessId
 	indata[sales_common.FLD_CUSTOMER_ID] = p.customerId
-	indata[sales_common.FLD_WISHLIST_ID] = wishlistId
+	indata[sales_common.FLD_REVIEW_ID] = reviewId
 
 	data, err := p.daoCustomerReview.Create(indata)
 	if err != nil {
@@ -163,35 +163,35 @@ func (p *customerreviewBaseService) Create(indata utils.Map) (utils.Map, error) 
 }
 
 // Update - Update Service
-func (p *customerreviewBaseService) Update(wishlistId string, indata utils.Map) (utils.Map, error) {
+func (p *customerreviewBaseService) Update(reviewId string, indata utils.Map) (utils.Map, error) {
 
 	log.Println("CustomerReviewService::Update - Begin")
 
 	// Delete Key values
 	delete(indata, sales_common.FLD_BUSINESS_ID)
 	delete(indata, sales_common.FLD_CUSTOMER_ID)
-	delete(indata, sales_common.FLD_WISHLIST_ID)
+	delete(indata, sales_common.FLD_REVIEW_ID)
 
-	data, err := p.daoCustomerReview.Update(wishlistId, indata)
+	data, err := p.daoCustomerReview.Update(reviewId, indata)
 
 	log.Println("CustomerReviewService::Update - End ")
 	return data, err
 }
 
 // Delete - Delete Service
-func (p *customerreviewBaseService) Delete(wishlistId string, delete_permanent bool) error {
+func (p *customerreviewBaseService) Delete(reviewId string, delete_permanent bool) error {
 
-	log.Println("CustomerReviewService::Delete - Begin", wishlistId)
+	log.Println("CustomerReviewService::Delete - Begin", reviewId)
 
 	if delete_permanent {
-		result, err := p.daoCustomerReview.Delete(wishlistId)
+		result, err := p.daoCustomerReview.Delete(reviewId)
 		if err != nil {
 			return err
 		}
 		log.Printf("Delete %v", result)
 	} else {
 		indata := utils.Map{db_common.FLD_IS_DELETED: true}
-		data, err := p.Update(wishlistId, indata)
+		data, err := p.Update(reviewId, indata)
 		if err != nil {
 			return err
 		}

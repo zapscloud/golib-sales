@@ -13,15 +13,15 @@ type CustomerReviewDao interface {
 	//List - List all Collections
 	List(filter string, sort string, skip int64, limit int64) (utils.Map, error)
 	// Get - Get by code
-	Get(wishlistId string) (utils.Map, error)
+	Get(reviewId string) (utils.Map, error)
 	// Find - Find by filter
 	Find(filter string) (utils.Map, error)
 	// Create - Create Collection
 	Create(indata utils.Map) (utils.Map, error)
 	// Update - Update Collection
-	Update(wishlistId string, indata utils.Map) (utils.Map, error)
+	Update(reviewId string, indata utils.Map) (utils.Map, error)
 	// Delete - Delete Collection
-	Delete(wishlistId string) (int64, error)
+	Delete(reviewId string) (int64, error)
 }
 
 // NewCustomerReviewDao - Contruct Business CustomerReview Dao

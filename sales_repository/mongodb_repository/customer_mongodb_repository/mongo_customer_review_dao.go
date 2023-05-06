@@ -138,16 +138,16 @@ func (t *CustomerReviewMongoDBDao) List(filter string, sort string, skip int64, 
 }
 
 // Get - Get by code
-func (p *CustomerReviewMongoDBDao) Get(wishlistId string) (utils.Map, error) {
+func (p *CustomerReviewMongoDBDao) Get(reviewId string) (utils.Map, error) {
 	// Get a single document
 	var result utils.Map
 
-	log.Println("CustomerReviewMongoDBDao::Get:: Begin ", wishlistId)
+	log.Println("CustomerReviewMongoDBDao::Get:: Begin ", reviewId)
 
 	collection, ctx, err := mongo_utils.GetMongoDbCollection(p.client, sales_common.DbCustomerReview)
 	log.Println("Get:: Got Collection ")
 
-	filter := bson.D{{Key: sales_common.FLD_WISHLIST_ID, Value: wishlistId}, {}}
+	filter := bson.D{{Key: sales_common.FLD_REVIEW_ID, Value: reviewId}, {}}
 
 	filter = append(filter,
 		bson.E{Key: sales_common.FLD_BUSINESS_ID, Value: p.businessId},
@@ -224,7 +224,7 @@ func (p *CustomerReviewMongoDBDao) Find(filter string) (utils.Map, error) {
 func (t *CustomerReviewMongoDBDao) Create(indata utils.Map) (utils.Map, error) {
 
 	log.Println("CustomerReview Save - Begin", indata)
-	//Business_wishlist
+	//Business_review
 	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCustomerReview)
 	if err != nil {
 		log.Println("Error in insert ", err)
@@ -240,17 +240,17 @@ func (t *CustomerReviewMongoDBDao) Create(indata utils.Map) (utils.Map, error) {
 
 	}
 	log.Println("Inserted a single document: ", insertResult1.InsertedID)
-	log.Println("Save - End", indata[sales_common.FLD_WISHLIST_ID])
+	log.Println("Save - End", indata[sales_common.FLD_REVIEW_ID])
 
-	return t.Get(indata[sales_common.FLD_WISHLIST_ID].(string))
+	return t.Get(indata[sales_common.FLD_REVIEW_ID].(string))
 }
 
 // Update - Update Collection
-func (t *CustomerReviewMongoDBDao) Update(wishlistId string, indata utils.Map) (utils.Map, error) {
+func (t *CustomerReviewMongoDBDao) Update(reviewId string, indata utils.Map) (utils.Map, error) {
 
 	log.Println("Update - Begin")
 
-	//wishlist
+	//review
 	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCustomerReview)
 	if err != nil {
 		return utils.Map{}, err
@@ -259,7 +259,7 @@ func (t *CustomerReviewMongoDBDao) Update(wishlistId string, indata utils.Map) (
 	indata = db_common.AmendFldsforUpdate(indata)
 	log.Printf("Update - Values %v", indata)
 
-	filterCustomerReview := bson.D{{Key: sales_common.FLD_WISHLIST_ID, Value: wishlistId}}
+	filterCustomerReview := bson.D{{Key: sales_common.FLD_REVIEW_ID, Value: reviewId}}
 	updateResult1, err := collection.UpdateOne(ctx, filterCustomerReview, bson.D{{Key: "$set", Value: indata}})
 	if err != nil {
 		return utils.Map{}, err
@@ -267,13 +267,13 @@ func (t *CustomerReviewMongoDBDao) Update(wishlistId string, indata utils.Map) (
 	log.Println("Update a single document: ", updateResult1.ModifiedCount)
 
 	log.Println("Update - End")
-	return t.Get(wishlistId)
+	return t.Get(reviewId)
 }
 
 // Delete - Delete Collection
-func (t *CustomerReviewMongoDBDao) Delete(wishlistId string) (int64, error) {
+func (t *CustomerReviewMongoDBDao) Delete(reviewId string) (int64, error) {
 
-	log.Println("CustomerReviewMongoDBDao::Delete - Begin ", wishlistId)
+	log.Println("CustomerReviewMongoDBDao::Delete - Begin ", reviewId)
 
 	//BusinessCustomerReview
 	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCustomerReview)
@@ -286,7 +286,7 @@ func (t *CustomerReviewMongoDBDao) Delete(wishlistId string) (int64, error) {
 		CaseLevel: false,
 	})
 
-	filterCustomerReview := bson.D{{Key: sales_common.FLD_WISHLIST_ID, Value: wishlistId}}
+	filterCustomerReview := bson.D{{Key: sales_common.FLD_REVIEW_ID, Value: reviewId}}
 	resCustomerReview, err := collection.DeleteOne(ctx, filterCustomerReview, optsCustomerReview)
 	if err != nil {
 		log.Println("Error in delete ", err)
