@@ -124,7 +124,7 @@ func (p *pageBaseService) Create(indata utils.Map) (utils.Map, error) {
 	if dataok {
 		pageId = strings.ToLower(dataval.(string))
 	} else {
-		pageId = utils.GenerateUniqueId("abtus")
+		pageId = utils.GenerateUniqueId("page")
 		log.Println("Unique Page ID", pageId)
 	}
 
