@@ -111,7 +111,7 @@ const (
 	FLD_PREFERENCE_NAME = "preference_name"
 
 	// Fields for Page
-	FLD_PAGE_ID = "PAGE_id"
+	FLD_PAGE_ID = "page_id"
 
 	// Fields for Dealer
 	FLD_DEALER_ID   = "dealer_id"
