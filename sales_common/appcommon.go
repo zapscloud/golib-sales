@@ -29,7 +29,7 @@ const (
 	DbPayment          = DbPrefix + "sales_payment"
 	DbNavigation       = DbPrefix + "sales_navigation"
 	DbPreference       = DbPrefix + "sales_preference"
-	DbAboutUs          = DbPrefix + "sales_aboutus"
+	DbPage             = DbPrefix + "sales_page"
 	DbDealer           = DbPrefix + "sales_dealer"
 
 	DbMedia = DbPrefix + "sales_media"
@@ -110,10 +110,10 @@ const (
 	FLD_PREFERENCE_ID   = "preference_id"
 	FLD_PREFERENCE_NAME = "preference_name"
 
-	// Fields for AboutUs
-	FLD_ABOUTUS_ID = "aboutus_id"
+	// Fields for Page
+	FLD_PAGE_ID = "PAGE_id"
 
-	// Fields for AboutUs
+	// Fields for Dealer
 	FLD_DEALER_ID   = "dealer_id"
 	FLD_DEALER_NAME = "dealer_name"
 

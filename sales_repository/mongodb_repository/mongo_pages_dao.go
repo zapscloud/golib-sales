@@ -12,8 +12,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// AboutUsMongoDBDao - AboutUs DAO Repository
-type AboutUsMongoDBDao struct {
+// PageMongoDBDao - Page DAO Repository
+type PageMongoDBDao struct {
 	client     utils.Map
 	businessId string
 }
@@ -22,19 +22,19 @@ func init() {
 	log.SetFlags(log.Lshortfile | log.LstdFlags | log.Lmicroseconds)
 }
 
-func (p *AboutUsMongoDBDao) InitializeDao(client utils.Map, businessId string) {
-	log.Println("Initialize AboutUs Mongodb DAO")
+func (p *PageMongoDBDao) InitializeDao(client utils.Map, businessId string) {
+	log.Println("Initialize Page Mongodb DAO")
 	p.client = client
 	p.businessId = businessId
 }
 
 // List - List all Collections
-func (t *AboutUsMongoDBDao) List(filter string, sort string, skip int64, limit int64) (utils.Map, error) {
+func (t *PageMongoDBDao) List(filter string, sort string, skip int64, limit int64) (utils.Map, error) {
 	var results []utils.Map
 
-	log.Println("Begin - Find All Collection Dao", sales_common.DbAboutUs)
+	log.Println("Begin - Find All Collection Dao", sales_common.DbPage)
 
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbAboutUs)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbPage)
 	if err != nil {
 		return nil, err
 	}
@@ -125,16 +125,16 @@ func (t *AboutUsMongoDBDao) List(filter string, sort string, skip int64, limit i
 }
 
 // Get - Get by code
-func (p *AboutUsMongoDBDao) Get(aboutusId string) (utils.Map, error) {
+func (p *PageMongoDBDao) Get(pageId string) (utils.Map, error) {
 	// Get a single document
 	var result utils.Map
 
-	log.Println("AboutUsMongoDBDao::Get:: Begin ", aboutusId)
+	log.Println("PageMongoDBDao::Get:: Begin ", pageId)
 
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(p.client, sales_common.DbAboutUs)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(p.client, sales_common.DbPage)
 	log.Println("Get:: Got Collection ")
 
-	filter := bson.D{{Key: sales_common.FLD_ABOUTUS_ID, Value: aboutusId}, {}}
+	filter := bson.D{{Key: sales_common.FLD_PAGE_ID, Value: pageId}, {}}
 
 	filter = append(filter,
 		bson.E{Key: sales_common.FLD_BUSINESS_ID, Value: p.businessId},
@@ -155,18 +155,18 @@ func (p *AboutUsMongoDBDao) Get(aboutusId string) (utils.Map, error) {
 	// Remove fields from result
 	result = db_common.AmendFldsForGet(result)
 
-	log.Printf("Business AboutUsMongoDBDao::Get:: End Found a single document: %+v\n", result)
+	log.Printf("Business PageMongoDBDao::Get:: End Found a single document: %+v\n", result)
 	return result, nil
 }
 
 // Find - Find by Filter
-func (p *AboutUsMongoDBDao) Find(filter string) (utils.Map, error) {
+func (p *PageMongoDBDao) Find(filter string) (utils.Map, error) {
 	// Find a single document
 	var result utils.Map
 
-	log.Println("AboutUsDBDao::Find:: Begin ", filter)
+	log.Println("PageDBDao::Find:: Begin ", filter)
 
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(p.client, sales_common.DbAboutUs)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(p.client, sales_common.DbPage)
 	log.Println("Find:: Got Collection ", err)
 
 	bfilter := bson.D{}
@@ -193,16 +193,16 @@ func (p *AboutUsMongoDBDao) Find(filter string) (utils.Map, error) {
 	// Remove fields from result
 	result = db_common.AmendFldsForGet(result)
 
-	log.Println("AboutUsDBDao::Find:: End Found a single document: \n", err)
+	log.Println("PageDBDao::Find:: End Found a single document: \n", err)
 	return result, nil
 }
 
 // Create - Create Collection
-func (t *AboutUsMongoDBDao) Create(indata utils.Map) (utils.Map, error) {
+func (t *PageMongoDBDao) Create(indata utils.Map) (utils.Map, error) {
 
-	log.Println("AboutUs Save - Begin", indata)
-	//Business_aboutus
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbAboutUs)
+	log.Println("Page Save - Begin", indata)
+	//Business_page
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbPage)
 	if err != nil {
 		log.Println("Error in insert ", err)
 		return utils.Map{}, err
@@ -217,18 +217,18 @@ func (t *AboutUsMongoDBDao) Create(indata utils.Map) (utils.Map, error) {
 
 	}
 	log.Println("Inserted a single document: ", insertResult1.InsertedID)
-	log.Println("Save - End", indata[sales_common.FLD_ABOUTUS_ID])
+	log.Println("Save - End", indata[sales_common.FLD_PAGE_ID])
 
-	return t.Get(indata[sales_common.FLD_ABOUTUS_ID].(string))
+	return t.Get(indata[sales_common.FLD_PAGE_ID].(string))
 }
 
 // Update - Update Collection
-func (t *AboutUsMongoDBDao) Update(aboutusId string, indata utils.Map) (utils.Map, error) {
+func (t *PageMongoDBDao) Update(pageId string, indata utils.Map) (utils.Map, error) {
 
 	log.Println("Update - Begin")
 
-	//aboutus
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbAboutUs)
+	//page
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbPage)
 	if err != nil {
 		return utils.Map{}, err
 	}
@@ -236,39 +236,39 @@ func (t *AboutUsMongoDBDao) Update(aboutusId string, indata utils.Map) (utils.Ma
 	indata = db_common.AmendFldsforUpdate(indata)
 	log.Printf("Update - Values %v", indata)
 
-	filterAboutUs := bson.D{{Key: sales_common.FLD_ABOUTUS_ID, Value: aboutusId}}
-	updateResult1, err := collection.UpdateOne(ctx, filterAboutUs, bson.D{{Key: "$set", Value: indata}})
+	filterPage := bson.D{{Key: sales_common.FLD_PAGE_ID, Value: pageId}}
+	updateResult1, err := collection.UpdateOne(ctx, filterPage, bson.D{{Key: "$set", Value: indata}})
 	if err != nil {
 		return utils.Map{}, err
 	}
 	log.Println("Update a single document: ", updateResult1.ModifiedCount)
 
 	log.Println("Update - End")
-	return t.Get(aboutusId)
+	return t.Get(pageId)
 }
 
 // Delete - Delete Collection
-func (t *AboutUsMongoDBDao) Delete(aboutusId string) (int64, error) {
+func (t *PageMongoDBDao) Delete(pageId string) (int64, error) {
 
-	log.Println("AboutUsMongoDBDao::Delete - Begin ", aboutusId)
+	log.Println("PageMongoDBDao::Delete - Begin ", pageId)
 
-	//BusinessAboutUs
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbAboutUs)
+	//BusinessPage
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbPage)
 	if err != nil {
 		return 0, err
 	}
-	optsAboutUs := options.Delete().SetCollation(&options.Collation{
+	optsPage := options.Delete().SetCollation(&options.Collation{
 		Locale:    db_common.LOCALE,
 		Strength:  1,
 		CaseLevel: false,
 	})
 
-	filterAboutUs := bson.D{{Key: sales_common.FLD_ABOUTUS_ID, Value: aboutusId}}
-	resAboutUs, err := collection.DeleteOne(ctx, filterAboutUs, optsAboutUs)
+	filterPage := bson.D{{Key: sales_common.FLD_PAGE_ID, Value: pageId}}
+	resPage, err := collection.DeleteOne(ctx, filterPage, optsPage)
 	if err != nil {
 		log.Println("Error in delete ", err)
 		return 0, err
 	}
-	log.Printf("AboutUsMongoDBDao::Delete - End deleted %v documents\n", resAboutUs.DeletedCount)
-	return resAboutUs.DeletedCount, nil
+	log.Printf("PageMongoDBDao::Delete - End deleted %v documents\n", resPage.DeletedCount)
+	return resPage.DeletedCount, nil
 }
