@@ -88,6 +88,7 @@ const (
 	FLD_CUSTOMER_ID       = "customer_id"
 	FLD_CUSTOMER_LOGIN_ID = "customer_loginid"
 	FLD_CUSTOMER_PASSWORD = "customer_password"
+	FLD_CUSTOMER_OTP      = "customer_otp"
 
 	// Fields for Order
 	FLD_ORDER_ID   = "order_id"
