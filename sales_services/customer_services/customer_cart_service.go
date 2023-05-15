@@ -70,7 +70,7 @@ func NewCustomerCartService(props utils.Map) (CustomerCartService, error) {
 	p.initializeService()
 
 	// Verify the Business Exists
-	_, err = p.daoBusiness.GetDetails(businessId)
+	_, err = p.daoBusiness.Get(businessId)
 	if err != nil {
 		err := &utils.AppError{ErrorCode: funcode + "01", ErrorMsg: "Invalid BusinessId", ErrorDetail: "Given BusinessId is not exist"}
 		return nil, err

@@ -60,7 +60,7 @@ func NewPaymentService(props utils.Map) (PaymentService, error) {
 	p.businessId = businessId
 	p.initializeService()
 
-	_, err = p.daoBusiness.GetDetails(businessId)
+	_, err = p.daoBusiness.Get(businessId)
 	if err != nil {
 		err := &utils.AppError{
 			ErrorCode:   funcode + "01",
