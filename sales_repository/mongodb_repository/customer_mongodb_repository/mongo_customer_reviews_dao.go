@@ -1,4 +1,4 @@
-package mongodb_repository
+package customer_mongodb_repository
 
 import (
 	"fmt"
@@ -12,29 +12,31 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// MediaMongoDBDao - Media DAO Repository
-type MediaMongoDBDao struct {
+// CustomerReviewMongoDBDao - CustomerReview DAO Repository
+type CustomerReviewMongoDBDao struct {
 	client     utils.Map
 	businessId string
+	customerId string
 }
 
 func init() {
 	log.SetFlags(log.Lshortfile | log.LstdFlags | log.Lmicroseconds)
 }
 
-func (p *MediaMongoDBDao) InitializeDao(client utils.Map, businessId string) {
-	log.Println("Initialize Media Mongodb DAO")
+func (p *CustomerReviewMongoDBDao) InitializeDao(client utils.Map, businessId string, customerId string) {
+	log.Println("Initialize CustomerReview Mongodb DAO")
 	p.client = client
 	p.businessId = businessId
+	p.customerId = customerId
 }
 
 // List - List all Collections
-func (t *MediaMongoDBDao) List(filter string, sort string, skip int64, limit int64) (utils.Map, error) {
+func (t *CustomerReviewMongoDBDao) List(filter string, sort string, skip int64, limit int64) (utils.Map, error) {
 	var results []utils.Map
 
-	log.Println("Begin - Find All Collection Dao", sales_common.DbMedia)
+	log.Println("Begin - Find All Collection Dao", sales_common.DbCustomerReviews)
 
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbMedia)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCustomerReviews)
 	if err != nil {
 		return nil, err
 	}
@@ -76,6 +78,11 @@ func (t *MediaMongoDBDao) List(filter string, sort string, skip int64, limit int
 		bson.E{Key: sales_common.FLD_BUSINESS_ID, Value: t.businessId},
 		bson.E{Key: db_common.FLD_IS_DELETED, Value: false})
 
+	// Append customerId as filter if it available
+	if len(t.customerId) > 0 {
+		filterdoc = append(filterdoc, bson.E{Key: sales_common.FLD_CUSTOMER_ID, Value: t.customerId})
+	}
+
 	log.Println("Parameter values ", filterdoc, opts)
 	cursor, err := collection.Find(ctx, filterdoc, opts)
 	if err != nil {
@@ -107,6 +114,12 @@ func (t *MediaMongoDBDao) List(filter string, sort string, skip int64, limit int
 	basefilterdoc := bson.D{
 		{Key: sales_common.FLD_BUSINESS_ID, Value: t.businessId},
 		{Key: db_common.FLD_IS_DELETED, Value: false}}
+
+	// Append customerId as filter if it available
+	if len(t.customerId) > 0 {
+		basefilterdoc = append(basefilterdoc, bson.E{Key: sales_common.FLD_CUSTOMER_ID, Value: t.customerId})
+	}
+
 	totalcount, err := collection.CountDocuments(ctx, basefilterdoc)
 	if err != nil {
 		return nil, err
@@ -125,20 +138,25 @@ func (t *MediaMongoDBDao) List(filter string, sort string, skip int64, limit int
 }
 
 // Get - Get by code
-func (p *MediaMongoDBDao) Get(mediaId string) (utils.Map, error) {
+func (p *CustomerReviewMongoDBDao) Get(reviewId string) (utils.Map, error) {
 	// Get a single document
 	var result utils.Map
 
-	log.Println("MediaMongoDBDao::Get:: Begin ", mediaId)
+	log.Println("CustomerReviewMongoDBDao::Get:: Begin ", reviewId)
 
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(p.client, sales_common.DbMedia)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(p.client, sales_common.DbCustomerReviews)
 	log.Println("Get:: Got Collection ")
 
-	filter := bson.D{{Key: sales_common.FLD_MEDIA_ID, Value: mediaId}, {}}
+	filter := bson.D{{Key: sales_common.FLD_REVIEW_ID, Value: reviewId}, {}}
 
 	filter = append(filter,
 		bson.E{Key: sales_common.FLD_BUSINESS_ID, Value: p.businessId},
 		bson.E{Key: db_common.FLD_IS_DELETED, Value: false})
+
+	// Append customerId as filter if it available
+	if len(p.customerId) > 0 {
+		filter = append(filter, bson.E{Key: sales_common.FLD_CUSTOMER_ID, Value: p.customerId})
+	}
 
 	log.Println("Get:: Got filter ", filter)
 	singleResult := collection.FindOne(ctx, filter)
@@ -155,18 +173,18 @@ func (p *MediaMongoDBDao) Get(mediaId string) (utils.Map, error) {
 	// Remove fields from result
 	result = db_common.AmendFldsForGet(result)
 
-	log.Printf("Business MediaMongoDBDao::Get:: End Found a single document: %+v\n", result)
+	log.Printf("Business CustomerReviewMongoDBDao::Get:: End Found a single document: %+v\n", result)
 	return result, nil
 }
 
 // Find - Find by Filter
-func (p *MediaMongoDBDao) Find(filter string) (utils.Map, error) {
+func (p *CustomerReviewMongoDBDao) Find(filter string) (utils.Map, error) {
 	// Find a single document
 	var result utils.Map
 
-	log.Println("MediaDBDao::Find:: Begin ", filter)
+	log.Println("CustomerReviewDBDao::Find:: Begin ", filter)
 
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(p.client, sales_common.DbMedia)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(p.client, sales_common.DbCustomerReviews)
 	log.Println("Find:: Got Collection ", err)
 
 	bfilter := bson.D{}
@@ -177,6 +195,11 @@ func (p *MediaMongoDBDao) Find(filter string) (utils.Map, error) {
 	bfilter = append(bfilter,
 		bson.E{Key: sales_common.FLD_BUSINESS_ID, Value: p.businessId},
 		bson.E{Key: db_common.FLD_IS_DELETED, Value: false})
+
+	// Append customerId as filter if it available
+	if len(p.customerId) > 0 {
+		bfilter = append(bfilter, bson.E{Key: sales_common.FLD_CUSTOMER_ID, Value: p.customerId})
+	}
 
 	log.Println("Find:: Got filter ", bfilter)
 	singleResult := collection.FindOne(ctx, bfilter)
@@ -193,16 +216,16 @@ func (p *MediaMongoDBDao) Find(filter string) (utils.Map, error) {
 	// Remove fields from result
 	result = db_common.AmendFldsForGet(result)
 
-	log.Println("MediaDBDao::Find:: End Found a single document: \n", err)
+	log.Println("CustomerReviewDBDao::Find:: End Found a single document: \n", err)
 	return result, nil
 }
 
 // Create - Create Collection
-func (t *MediaMongoDBDao) Create(indata utils.Map) (utils.Map, error) {
+func (t *CustomerReviewMongoDBDao) Create(indata utils.Map) (utils.Map, error) {
 
-	log.Println("Media Save - Begin", indata)
-	//Business_media
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbMedia)
+	log.Println("CustomerReview Save - Begin", indata)
+	//Business_review
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCustomerReviews)
 	if err != nil {
 		log.Println("Error in insert ", err)
 		return utils.Map{}, err
@@ -217,18 +240,18 @@ func (t *MediaMongoDBDao) Create(indata utils.Map) (utils.Map, error) {
 
 	}
 	log.Println("Inserted a single document: ", insertResult1.InsertedID)
-	log.Println("Save - End", indata[sales_common.FLD_MEDIA_ID])
+	log.Println("Save - End", indata[sales_common.FLD_REVIEW_ID])
 
-	return t.Get(indata[sales_common.FLD_MEDIA_ID].(string))
+	return t.Get(indata[sales_common.FLD_REVIEW_ID].(string))
 }
 
 // Update - Update Collection
-func (t *MediaMongoDBDao) Update(mediaId string, indata utils.Map) (utils.Map, error) {
+func (t *CustomerReviewMongoDBDao) Update(reviewId string, indata utils.Map) (utils.Map, error) {
 
 	log.Println("Update - Begin")
 
-	//media
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbMedia)
+	//review
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCustomerReviews)
 	if err != nil {
 		return utils.Map{}, err
 	}
@@ -236,39 +259,39 @@ func (t *MediaMongoDBDao) Update(mediaId string, indata utils.Map) (utils.Map, e
 	indata = db_common.AmendFldsforUpdate(indata)
 	log.Printf("Update - Values %v", indata)
 
-	filterMedia := bson.D{{Key: sales_common.FLD_MEDIA_ID, Value: mediaId}}
-	updateResult1, err := collection.UpdateOne(ctx, filterMedia, bson.D{{Key: "$set", Value: indata}})
+	filterCustomerReview := bson.D{{Key: sales_common.FLD_REVIEW_ID, Value: reviewId}}
+	updateResult1, err := collection.UpdateOne(ctx, filterCustomerReview, bson.D{{Key: "$set", Value: indata}})
 	if err != nil {
 		return utils.Map{}, err
 	}
 	log.Println("Update a single document: ", updateResult1.ModifiedCount)
 
 	log.Println("Update - End")
-	return t.Get(mediaId)
+	return t.Get(reviewId)
 }
 
 // Delete - Delete Collection
-func (t *MediaMongoDBDao) Delete(mediaId string) (int64, error) {
+func (t *CustomerReviewMongoDBDao) Delete(reviewId string) (int64, error) {
 
-	log.Println("MediaMongoDBDao::Delete - Begin ", mediaId)
+	log.Println("CustomerReviewMongoDBDao::Delete - Begin ", reviewId)
 
-	//BusinessMedia
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbMedia)
+	//BusinessCustomerReview
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCustomerReviews)
 	if err != nil {
 		return 0, err
 	}
-	optsMedia := options.Delete().SetCollation(&options.Collation{
+	optsCustomerReview := options.Delete().SetCollation(&options.Collation{
 		Locale:    db_common.LOCALE,
 		Strength:  1,
 		CaseLevel: false,
 	})
 
-	filterMedia := bson.D{{Key: sales_common.FLD_MEDIA_ID, Value: mediaId}}
-	resMedia, err := collection.DeleteOne(ctx, filterMedia, optsMedia)
+	filterCustomerReview := bson.D{{Key: sales_common.FLD_REVIEW_ID, Value: reviewId}}
+	resCustomerReview, err := collection.DeleteOne(ctx, filterCustomerReview, optsCustomerReview)
 	if err != nil {
 		log.Println("Error in delete ", err)
 		return 0, err
 	}
-	log.Printf("MediaMongoDBDao::Delete - End deleted %v documents\n", resMedia.DeletedCount)
-	return resMedia.DeletedCount, nil
+	log.Printf("CustomerReviewMongoDBDao::Delete - End deleted %v documents\n", resCustomerReview.DeletedCount)
+	return resCustomerReview.DeletedCount, nil
 }

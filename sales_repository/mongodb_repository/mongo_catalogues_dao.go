@@ -12,8 +12,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// NavigationMongoDBDao - Navigation DAO Repository
-type NavigationMongoDBDao struct {
+// BrandDao - Brand DAO Repository
+type CatalogueMongoDBDao struct {
 	client     utils.Map
 	businessId string
 }
@@ -22,19 +22,19 @@ func init() {
 	log.SetFlags(log.Lshortfile | log.LstdFlags | log.Lmicroseconds)
 }
 
-func (p *NavigationMongoDBDao) InitializeDao(client utils.Map, businessId string) {
-	log.Println("Initialize Navigation Mongodb DAO")
+func (p *CatalogueMongoDBDao) InitializeDao(client utils.Map, businessId string) {
+	log.Println("Initialize Catalogue Mongodb DAO")
 	p.client = client
 	p.businessId = businessId
 }
 
 // List - List all Collections
-func (t *NavigationMongoDBDao) List(filter string, sort string, skip int64, limit int64) (utils.Map, error) {
+func (t *CatalogueMongoDBDao) List(filter string, sort string, skip int64, limit int64) (utils.Map, error) {
 	var results []utils.Map
 
-	log.Println("Begin - Find All Collection Dao", sales_common.DbNavigation)
+	log.Println("Begin - Find All Collection Dao", sales_common.DbCatalogues)
 
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbNavigation)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCatalogues)
 	if err != nil {
 		return nil, err
 	}
@@ -93,8 +93,7 @@ func (t *NavigationMongoDBDao) List(filter string, sort string, skip int64, limi
 	listdata := []utils.Map{}
 	for idx, value := range results {
 		log.Println("Item ", idx)
-		// Remove fields from result
-		value = db_common.AmendFldsForGet(value)
+		delete(value, db_common.FLD_DEFAULT_ID)
 		listdata = append(listdata, value)
 	}
 
@@ -125,48 +124,47 @@ func (t *NavigationMongoDBDao) List(filter string, sort string, skip int64, limi
 }
 
 // Get - Get by code
-func (t *NavigationMongoDBDao) Get(navigationId string) (utils.Map, error) {
+func (p *CatalogueMongoDBDao) Get(catalogueId string) (utils.Map, error) {
 	// Get a single document
 	var result utils.Map
 
-	log.Println("NavigationMongoDBDao::Get:: Begin ", navigationId)
+	log.Println("CatalogueMongoDBDao::Get:: Begin ", catalogueId)
 
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbNavigation)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(p.client, sales_common.DbCatalogues)
 	log.Println("Get:: Got Collection ")
 
-	filter := bson.D{{Key: sales_common.FLD_NAVIGATION_ID, Value: navigationId}, {}}
+	filter := bson.D{{Key: sales_common.FLD_CATALOGUE_ID, Value: catalogueId}, {}}
 
 	filter = append(filter,
-		bson.E{Key: sales_common.FLD_BUSINESS_ID, Value: t.businessId},
+		bson.E{Key: sales_common.FLD_BUSINESS_ID, Value: p.businessId},
 		bson.E{Key: db_common.FLD_IS_DELETED, Value: false})
 
 	log.Println("Get:: Got filter ", filter)
+
 	singleResult := collection.FindOne(ctx, filter)
 	if singleResult.Err() != nil {
 		log.Println("Get:: Record not found ", singleResult.Err())
 		return result, singleResult.Err()
 	}
+
 	singleResult.Decode(&result)
 	if err != nil {
 		log.Println("Error in decode", err)
 		return result, err
 	}
 
-	// Remove fields from result
-	result = db_common.AmendFldsForGet(result)
-
-	log.Printf("Business NavigationMongoDBDao::Get:: End Found a single document: %+v\n", result)
+	log.Printf("CatalogueMongoDBDao::Get:: End Found a single document: %+v\n", result)
 	return result, nil
 }
 
 // Find - Find by Filter
-func (p *NavigationMongoDBDao) Find(filter string) (utils.Map, error) {
+func (p *CatalogueMongoDBDao) Find(filter string) (utils.Map, error) {
 	// Find a single document
 	var result utils.Map
 
-	log.Println("NavigationDBDao::Find:: Begin ", filter)
+	log.Println("CatalogueDBDao::Find:: Begin ", filter)
 
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(p.client, sales_common.DbNavigation)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(p.client, sales_common.DbCatalogues)
 	log.Println("Find:: Got Collection ", err)
 
 	bfilter := bson.D{}
@@ -193,42 +191,38 @@ func (p *NavigationMongoDBDao) Find(filter string) (utils.Map, error) {
 	// Remove fields from result
 	result = db_common.AmendFldsForGet(result)
 
-	log.Println("NavigationDBDao::Find:: End Found a single document: \n", err)
+	log.Println("CatalogueDBDao::Find:: End Found a single document: \n", err)
 	return result, nil
 }
 
 // Create - Create Collection
-func (t *NavigationMongoDBDao) Create(indata utils.Map) (utils.Map, error) {
+func (t *CatalogueMongoDBDao) Create(indata utils.Map) (utils.Map, error) {
 
-	log.Println("Navigation Save - Begin", indata)
-	//Sales Navigation
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbNavigation)
+	log.Println("Brand Save - Begin", indata)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCatalogues)
 	if err != nil {
-		log.Println("Error in insert ", err)
 		return utils.Map{}, err
 	}
 	// Add Fields for Create
 	indata = db_common.AmendFldsforCreate(indata)
 
-	insertResult1, err := collection.InsertOne(ctx, indata)
+	insertResult, err := collection.InsertOne(ctx, indata)
 	if err != nil {
 		log.Println("Error in insert ", err)
 		return utils.Map{}, err
 
 	}
-	log.Println("Inserted a single document: ", insertResult1.InsertedID)
-	log.Println("Save - End", indata[sales_common.FLD_NAVIGATION_ID])
+	log.Println("Inserted a single document: ", insertResult.InsertedID)
+	log.Println("Save - End", indata[sales_common.FLD_CATALOGUE_ID])
 
-	return t.Get(indata[sales_common.FLD_NAVIGATION_ID].(string))
+	return indata, nil
 }
 
 // Update - Update Collection
-func (t *NavigationMongoDBDao) Update(navigationId string, indata utils.Map) (utils.Map, error) {
+func (t *CatalogueMongoDBDao) Update(catalogueId string, indata utils.Map) (utils.Map, error) {
 
 	log.Println("Update - Begin")
-
-	//Sales Navigation
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbNavigation)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCatalogues)
 	if err != nil {
 		return utils.Map{}, err
 	}
@@ -236,39 +230,38 @@ func (t *NavigationMongoDBDao) Update(navigationId string, indata utils.Map) (ut
 	indata = db_common.AmendFldsforUpdate(indata)
 	log.Printf("Update - Values %v", indata)
 
-	filterNavigation := bson.D{{Key: sales_common.FLD_NAVIGATION_ID, Value: navigationId}}
-	updateResult1, err := collection.UpdateOne(ctx, filterNavigation, bson.D{{Key: "$set", Value: indata}})
+	filter := bson.D{{Key: sales_common.FLD_CATALOGUE_ID, Value: catalogueId}}
+	updateResult, err := collection.UpdateOne(ctx, filter, bson.D{{Key: "$set", Value: indata}})
 	if err != nil {
 		return utils.Map{}, err
 	}
-	log.Println("Update a single document: ", updateResult1.ModifiedCount)
+	log.Println("Update a single document: ", updateResult.ModifiedCount)
 
 	log.Println("Update - End")
-	return t.Get(navigationId)
+	return t.Get(catalogueId)
 }
 
 // Delete - Delete Collection
-func (t *NavigationMongoDBDao) Delete(navigationId string) (int64, error) {
+func (t *CatalogueMongoDBDao) Delete(catalogueId string) (int64, error) {
 
-	log.Println("NavigationMongoDBDao::Delete - Begin ", navigationId)
+	log.Println("CatalogueMongoDBDao::Delete - Begin ", catalogueId)
 
-	// Sales Navigation
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbNavigation)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCatalogues)
 	if err != nil {
 		return 0, err
 	}
-	optsNavigation := options.Delete().SetCollation(&options.Collation{
+	opts := options.Delete().SetCollation(&options.Collation{
 		Locale:    db_common.LOCALE,
 		Strength:  1,
 		CaseLevel: false,
 	})
 
-	filterNavigation := bson.D{{Key: sales_common.FLD_NAVIGATION_ID, Value: navigationId}}
-	resNavigation, err := collection.DeleteOne(ctx, filterNavigation, optsNavigation)
+	filter := bson.D{{Key: sales_common.FLD_CATALOGUE_ID, Value: catalogueId}}
+	res, err := collection.DeleteOne(ctx, filter, opts)
 	if err != nil {
 		log.Println("Error in delete ", err)
 		return 0, err
 	}
-	log.Printf("NavigationMongoDBDao::Delete - End deleted %v documents\n", resNavigation.DeletedCount)
-	return resNavigation.DeletedCount, nil
+	log.Printf("CatalogueMongoDBDao::Delete - End deleted %v documents\n", res.DeletedCount)
+	return res.DeletedCount, nil
 }

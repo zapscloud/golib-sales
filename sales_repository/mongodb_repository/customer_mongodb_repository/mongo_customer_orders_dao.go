@@ -1,4 +1,4 @@
-package mongodb_repository
+package customer_mongodb_repository
 
 import (
 	"fmt"
@@ -12,29 +12,31 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// RegionMongoDBDao - Region DAO Repository
-type RegionMongoDBDao struct {
+// CustomerOrderMongoDBDao - CustomerOrder DAO Repository
+type CustomerOrderMongoDBDao struct {
 	client     utils.Map
 	businessId string
+	customerId string
 }
 
 func init() {
 	log.SetFlags(log.Lshortfile | log.LstdFlags | log.Lmicroseconds)
 }
 
-func (p *RegionMongoDBDao) InitializeDao(client utils.Map, businessId string) {
-	log.Println("Initialize Region Mongodb DAO")
+func (p *CustomerOrderMongoDBDao) InitializeDao(client utils.Map, businessId string, customerId string) {
+	log.Println("Initialize CustomerOrder Mongodb DAO")
 	p.client = client
 	p.businessId = businessId
+	p.customerId = customerId
 }
 
 // List - List all Collections
-func (t *RegionMongoDBDao) List(filter string, sort string, skip int64, limit int64) (utils.Map, error) {
+func (t *CustomerOrderMongoDBDao) List(filter string, sort string, skip int64, limit int64) (utils.Map, error) {
 	var results []utils.Map
 
-	log.Println("Begin - Find All Collection Dao", sales_common.DbRegion)
+	log.Println("Begin - Find All Collection Dao", sales_common.DbCustomerOrders)
 
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbRegion)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCustomerOrders)
 	if err != nil {
 		return nil, err
 	}
@@ -76,6 +78,11 @@ func (t *RegionMongoDBDao) List(filter string, sort string, skip int64, limit in
 		bson.E{Key: sales_common.FLD_BUSINESS_ID, Value: t.businessId},
 		bson.E{Key: db_common.FLD_IS_DELETED, Value: false})
 
+	// Append customerId as filter if it available
+	if len(t.customerId) > 0 {
+		filterdoc = append(filterdoc, bson.E{Key: sales_common.FLD_CUSTOMER_ID, Value: t.customerId})
+	}
+
 	log.Println("Parameter values ", filterdoc, opts)
 	cursor, err := collection.Find(ctx, filterdoc, opts)
 	if err != nil {
@@ -107,6 +114,11 @@ func (t *RegionMongoDBDao) List(filter string, sort string, skip int64, limit in
 	basefilterdoc := bson.D{
 		{Key: sales_common.FLD_BUSINESS_ID, Value: t.businessId},
 		{Key: db_common.FLD_IS_DELETED, Value: false}}
+
+	// Append customerId as filter if it available
+	if len(t.customerId) > 0 {
+		basefilterdoc = append(basefilterdoc, bson.E{Key: sales_common.FLD_CUSTOMER_ID, Value: t.customerId})
+	}
 	totalcount, err := collection.CountDocuments(ctx, basefilterdoc)
 	if err != nil {
 		return nil, err
@@ -125,20 +137,25 @@ func (t *RegionMongoDBDao) List(filter string, sort string, skip int64, limit in
 }
 
 // Get - Get by code
-func (t *RegionMongoDBDao) Get(regionId string) (utils.Map, error) {
+func (t *CustomerOrderMongoDBDao) Get(customerorderId string) (utils.Map, error) {
 	// Get a single document
 	var result utils.Map
 
-	log.Println("RegionMongoDBDao::Get:: Begin ", regionId)
+	log.Println("CustomerOrderMongoDBDao::Get:: Begin ", customerorderId)
 
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbRegion)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCustomerOrders)
 	log.Println("Get:: Got Collection ")
 
-	filter := bson.D{{Key: sales_common.FLD_REGION_ID, Value: regionId}, {}}
+	filter := bson.D{{Key: sales_common.FLD_CUSTOMER_ORDER_ID, Value: customerorderId}, {}}
 
 	filter = append(filter,
 		bson.E{Key: sales_common.FLD_BUSINESS_ID, Value: t.businessId},
 		bson.E{Key: db_common.FLD_IS_DELETED, Value: false})
+
+	// Append customerId as filter if it available
+	if len(t.customerId) > 0 {
+		filter = append(filter, bson.E{Key: sales_common.FLD_CUSTOMER_ID, Value: t.customerId})
+	}
 
 	log.Println("Get:: Got filter ", filter)
 	singleResult := collection.FindOne(ctx, filter)
@@ -155,18 +172,18 @@ func (t *RegionMongoDBDao) Get(regionId string) (utils.Map, error) {
 	// Remove fields from result
 	result = db_common.AmendFldsForGet(result)
 
-	log.Printf("Business RegionMongoDBDao::Get:: End Found a single document: %+v\n", result)
+	log.Printf("CustomerOrderMongoDBDao::Get:: End Found a single document: %+v\n", result)
 	return result, nil
 }
 
 // Find - Find by Filter
-func (p *RegionMongoDBDao) Find(filter string) (utils.Map, error) {
+func (p *CustomerOrderMongoDBDao) Find(filter string) (utils.Map, error) {
 	// Find a single document
 	var result utils.Map
 
-	log.Println("RegionDBDao::Find:: Begin ", filter)
+	log.Println("CustomerOrderDBDao::Find:: Begin ", filter)
 
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(p.client, sales_common.DbRegion)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(p.client, sales_common.DbCustomerOrders)
 	log.Println("Find:: Got Collection ", err)
 
 	bfilter := bson.D{}
@@ -177,6 +194,11 @@ func (p *RegionMongoDBDao) Find(filter string) (utils.Map, error) {
 	bfilter = append(bfilter,
 		bson.E{Key: sales_common.FLD_BUSINESS_ID, Value: p.businessId},
 		bson.E{Key: db_common.FLD_IS_DELETED, Value: false})
+
+	// Append customerId as filter if it available
+	if len(p.customerId) > 0 {
+		bfilter = append(bfilter, bson.E{Key: sales_common.FLD_CUSTOMER_ID, Value: p.customerId})
+	}
 
 	log.Println("Find:: Got filter ", bfilter)
 	singleResult := collection.FindOne(ctx, bfilter)
@@ -193,16 +215,16 @@ func (p *RegionMongoDBDao) Find(filter string) (utils.Map, error) {
 	// Remove fields from result
 	result = db_common.AmendFldsForGet(result)
 
-	log.Println("RegionDBDao::Find:: End Found a single document: \n", err)
+	log.Println("CustomerOrderDBDao::Find:: End Found a single document: \n", err)
 	return result, nil
 }
 
 // Create - Create Collection
-func (t *RegionMongoDBDao) Create(indata utils.Map) (utils.Map, error) {
+func (t *CustomerOrderMongoDBDao) Create(indata utils.Map) (utils.Map, error) {
 
-	log.Println("Region Save - Begin", indata)
-	//Sales Region
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbRegion)
+	log.Println("CustomerOrder Save - Begin", indata)
+	//Sales CustomerOrder
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCustomerOrders)
 	if err != nil {
 		log.Println("Error in insert ", err)
 		return utils.Map{}, err
@@ -217,18 +239,18 @@ func (t *RegionMongoDBDao) Create(indata utils.Map) (utils.Map, error) {
 
 	}
 	log.Println("Inserted a single document: ", insertResult1.InsertedID)
-	log.Println("Save - End", indata[sales_common.FLD_REGION_ID])
+	log.Println("Save - End", indata[sales_common.FLD_CUSTOMER_ORDER_ID])
 
-	return t.Get(indata[sales_common.FLD_REGION_ID].(string))
+	return t.Get(indata[sales_common.FLD_CUSTOMER_ORDER_ID].(string))
 }
 
 // Update - Update Collection
-func (t *RegionMongoDBDao) Update(regionId string, indata utils.Map) (utils.Map, error) {
+func (t *CustomerOrderMongoDBDao) Update(customerorderId string, indata utils.Map) (utils.Map, error) {
 
 	log.Println("Update - Begin")
 
-	//Sales Region
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbRegion)
+	//Sales CustomerOrder
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCustomerOrders)
 	if err != nil {
 		return utils.Map{}, err
 	}
@@ -236,39 +258,39 @@ func (t *RegionMongoDBDao) Update(regionId string, indata utils.Map) (utils.Map,
 	indata = db_common.AmendFldsforUpdate(indata)
 	log.Printf("Update - Values %v", indata)
 
-	filterRegion := bson.D{{Key: sales_common.FLD_REGION_ID, Value: regionId}}
-	updateResult1, err := collection.UpdateOne(ctx, filterRegion, bson.D{{Key: "$set", Value: indata}})
+	filterCustomerOrder := bson.D{{Key: sales_common.FLD_CUSTOMER_ORDER_ID, Value: customerorderId}}
+	updateResult1, err := collection.UpdateOne(ctx, filterCustomerOrder, bson.D{{Key: "$set", Value: indata}})
 	if err != nil {
 		return utils.Map{}, err
 	}
 	log.Println("Update a single document: ", updateResult1.ModifiedCount)
 
 	log.Println("Update - End")
-	return t.Get(regionId)
+	return t.Get(customerorderId)
 }
 
 // Delete - Delete Collection
-func (t *RegionMongoDBDao) Delete(regionId string) (int64, error) {
+func (t *CustomerOrderMongoDBDao) Delete(customerorderId string) (int64, error) {
 
-	log.Println("RegionMongoDBDao::Delete - Begin ", regionId)
+	log.Println("CustomerOrderMongoDBDao::Delete - Begin ", customerorderId)
 
-	// Sales Region
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbRegion)
+	// Sales CustomerOrder
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCustomerOrders)
 	if err != nil {
 		return 0, err
 	}
-	optsRegion := options.Delete().SetCollation(&options.Collation{
+	optsCustomerOrder := options.Delete().SetCollation(&options.Collation{
 		Locale:    db_common.LOCALE,
 		Strength:  1,
 		CaseLevel: false,
 	})
 
-	filterRegion := bson.D{{Key: sales_common.FLD_REGION_ID, Value: regionId}}
-	resRegion, err := collection.DeleteOne(ctx, filterRegion, optsRegion)
+	filterCustomerOrder := bson.D{{Key: sales_common.FLD_CUSTOMER_ORDER_ID, Value: customerorderId}}
+	resCustomerOrder, err := collection.DeleteOne(ctx, filterCustomerOrder, optsCustomerOrder)
 	if err != nil {
 		log.Println("Error in delete ", err)
 		return 0, err
 	}
-	log.Printf("RegionMongoDBDao::Delete - End deleted %v documents\n", resRegion.DeletedCount)
-	return resRegion.DeletedCount, nil
+	log.Printf("CustomerOrderMongoDBDao::Delete - End deleted %v documents\n", resCustomerOrder.DeletedCount)
+	return resCustomerOrder.DeletedCount, nil
 }

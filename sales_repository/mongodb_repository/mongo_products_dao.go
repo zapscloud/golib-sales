@@ -12,8 +12,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// TestimonialMongoDBDao - Testimonial DAO Repository
-type TestimonialMongoDBDao struct {
+// ProductMongoDBDao - Product DAO Repository
+type ProductMongoDBDao struct {
 	client     utils.Map
 	businessId string
 }
@@ -22,19 +22,19 @@ func init() {
 	log.SetFlags(log.Lshortfile | log.LstdFlags | log.Lmicroseconds)
 }
 
-func (p *TestimonialMongoDBDao) InitializeDao(client utils.Map, businessId string) {
-	log.Println("Initialize Testimonial Mongodb DAO")
+func (p *ProductMongoDBDao) InitializeDao(client utils.Map, businessId string) {
+	log.Println("Initialize Product Mongodb DAO")
 	p.client = client
 	p.businessId = businessId
 }
 
 // List - List all Collections
-func (t *TestimonialMongoDBDao) List(filter string, sort string, skip int64, limit int64) (utils.Map, error) {
+func (t *ProductMongoDBDao) List(filter string, sort string, skip int64, limit int64) (utils.Map, error) {
 	var results []utils.Map
 
-	log.Println("Begin - Find All Collection Dao", sales_common.DbTestimonial)
+	log.Println("Begin - Find All Collection Dao", sales_common.DbProducts)
 
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbTestimonial)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbProducts)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +88,7 @@ func (t *TestimonialMongoDBDao) List(filter string, sort string, skip int64, lim
 		return nil, err
 	}
 
-	log.Println("End - Find All Collection Dao", results)
+	//log.Println("End - Find All Collection Dao", results)
 
 	listdata := []utils.Map{}
 	for idx, value := range results {
@@ -125,19 +125,19 @@ func (t *TestimonialMongoDBDao) List(filter string, sort string, skip int64, lim
 }
 
 // Get - Get by code
-func (t *TestimonialMongoDBDao) Get(testimonialId string) (utils.Map, error) {
+func (p *ProductMongoDBDao) Get(productId string) (utils.Map, error) {
 	// Get a single document
 	var result utils.Map
 
-	log.Println("TestimonialMongoDBDao::Get:: Begin ", testimonialId)
+	log.Println("ProductMongoDBDao::Get:: Begin ", productId)
 
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbTestimonial)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(p.client, sales_common.DbProducts)
 	log.Println("Get:: Got Collection ")
 
-	filter := bson.D{{Key: sales_common.FLD_TESTIMONIAL_ID, Value: testimonialId}, {}}
+	filter := bson.D{{Key: sales_common.FLD_PRODUCT_ID, Value: productId}, {}}
 
 	filter = append(filter,
-		bson.E{Key: sales_common.FLD_BUSINESS_ID, Value: t.businessId},
+		bson.E{Key: sales_common.FLD_BUSINESS_ID, Value: p.businessId},
 		bson.E{Key: db_common.FLD_IS_DELETED, Value: false})
 
 	log.Println("Get:: Got filter ", filter)
@@ -155,18 +155,18 @@ func (t *TestimonialMongoDBDao) Get(testimonialId string) (utils.Map, error) {
 	// Remove fields from result
 	result = db_common.AmendFldsForGet(result)
 
-	log.Printf("Business TestimonialMongoDBDao::Get:: End Found a single document: %+v\n", result)
+	log.Printf("Business Product Dao::Get:: End Found a single document: %+v\n", result)
 	return result, nil
 }
 
 // Find - Find by Filter
-func (p *TestimonialMongoDBDao) Find(filter string) (utils.Map, error) {
+func (p *ProductMongoDBDao) Find(filter string) (utils.Map, error) {
 	// Find a single document
 	var result utils.Map
 
-	log.Println("TestimonialDBDao::Find:: Begin ", filter)
+	log.Println("ProductDBDao::Find:: Begin ", filter)
 
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(p.client, sales_common.DbTestimonial)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(p.client, sales_common.DbProducts)
 	log.Println("Find:: Got Collection ", err)
 
 	bfilter := bson.D{}
@@ -193,42 +193,42 @@ func (p *TestimonialMongoDBDao) Find(filter string) (utils.Map, error) {
 	// Remove fields from result
 	result = db_common.AmendFldsForGet(result)
 
-	log.Println("TestimonialDBDao::Find:: End Found a single document: \n", err)
+	log.Println("ProductDBDao::Find:: End Found a single document: \n", err)
 	return result, nil
 }
 
 // Create - Create Collection
-func (t *TestimonialMongoDBDao) Create(indata utils.Map) (utils.Map, error) {
+func (t *ProductMongoDBDao) Create(indata utils.Map) (utils.Map, error) {
 
-	log.Println("Testimonial Save - Begin", indata)
-	//Sales Testimonial
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbTestimonial)
+	log.Println("Product Save - Begin", indata)
+
+	//BusinessProduct
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbProducts)
 	if err != nil {
-		log.Println("Error in insert ", err)
 		return utils.Map{}, err
 	}
 	// Add Fields for Create
 	indata = db_common.AmendFldsforCreate(indata)
 
-	insertResult1, err := collection.InsertOne(ctx, indata)
+	insertResultProduct, err := collection.InsertOne(ctx, indata)
 	if err != nil {
 		log.Println("Error in insert ", err)
 		return utils.Map{}, err
 
 	}
-	log.Println("Inserted a single document: ", insertResult1.InsertedID)
-	log.Println("Save - End", indata[sales_common.FLD_TESTIMONIAL_ID])
+	log.Println("Inserted a single document: ", insertResultProduct.InsertedID)
+	log.Println("Save - End", indata[sales_common.FLD_PRODUCT_ID])
 
-	return t.Get(indata[sales_common.FLD_TESTIMONIAL_ID].(string))
+	return indata, nil
 }
 
 // Update - Update Collection
-func (t *TestimonialMongoDBDao) Update(TestimonialId string, indata utils.Map) (utils.Map, error) {
+func (t *ProductMongoDBDao) Update(productId string, indata utils.Map) (utils.Map, error) {
 
 	log.Println("Update - Begin")
 
-	//Sales Testimonial
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbTestimonial)
+	//BusinessProduct
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbProducts)
 	if err != nil {
 		return utils.Map{}, err
 	}
@@ -236,39 +236,39 @@ func (t *TestimonialMongoDBDao) Update(TestimonialId string, indata utils.Map) (
 	indata = db_common.AmendFldsforUpdate(indata)
 	log.Printf("Update - Values %v", indata)
 
-	filterTestimonial := bson.D{{Key: sales_common.FLD_TESTIMONIAL_ID, Value: TestimonialId}}
-	updateResult1, err := collection.UpdateOne(ctx, filterTestimonial, bson.D{{Key: "$set", Value: indata}})
+	filterProduct := bson.D{{Key: sales_common.FLD_PRODUCT_ID, Value: productId}}
+	updateResultProduct, err := collection.UpdateOne(ctx, filterProduct, bson.D{{Key: "$set", Value: indata}})
 	if err != nil {
 		return utils.Map{}, err
 	}
-	log.Println("Update a single document: ", updateResult1.ModifiedCount)
+	log.Println("Update a single document: ", updateResultProduct.ModifiedCount)
 
 	log.Println("Update - End")
-	return t.Get(TestimonialId)
+	return t.Get(productId)
 }
 
 // Delete - Delete Collection
-func (t *TestimonialMongoDBDao) Delete(testimonialId string) (int64, error) {
+func (t *ProductMongoDBDao) Delete(productId string) (int64, error) {
 
-	log.Println("TestimonialMongoDBDao::Delete - Begin ", testimonialId)
+	log.Println("ProductMongoDBDao::Delete - Begin ", productId)
 
-	// Sales Testimonial
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbTestimonial)
+	//BusinessProduct
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbProducts)
 	if err != nil {
 		return 0, err
 	}
-	optsTestimonial := options.Delete().SetCollation(&options.Collation{
+	optsProduct := options.Delete().SetCollation(&options.Collation{
 		Locale:    db_common.LOCALE,
 		Strength:  1,
 		CaseLevel: false,
 	})
 
-	filterTestimonial := bson.D{{Key: sales_common.FLD_TESTIMONIAL_ID, Value: testimonialId}}
-	resTestimonial, err := collection.DeleteOne(ctx, filterTestimonial, optsTestimonial)
+	filterProduct := bson.D{{Key: sales_common.FLD_PRODUCT_ID, Value: productId}}
+	resProduct, err := collection.DeleteOne(ctx, filterProduct, optsProduct)
 	if err != nil {
 		log.Println("Error in delete ", err)
 		return 0, err
 	}
-	log.Printf("TestimonialMongoDBDao::Delete - End deleted %v documents\n", resTestimonial.DeletedCount)
-	return resTestimonial.DeletedCount, nil
+	log.Printf("ProductMongoDBDao::Delete - End deleted %v documents\n", resProduct.DeletedCount)
+	return resProduct.DeletedCount, nil
 }

@@ -12,8 +12,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// ProductMongoDBDao - Product DAO Repository
-type ProductMongoDBDao struct {
+// DiscountMongoDBDao - Discount DAO Repository
+type DiscountMongoDBDao struct {
 	client     utils.Map
 	businessId string
 }
@@ -22,19 +22,19 @@ func init() {
 	log.SetFlags(log.Lshortfile | log.LstdFlags | log.Lmicroseconds)
 }
 
-func (p *ProductMongoDBDao) InitializeDao(client utils.Map, businessId string) {
-	log.Println("Initialize Product Mongodb DAO")
+func (p *DiscountMongoDBDao) InitializeDao(client utils.Map, businessId string) {
+	log.Println("Initialize Discount Mongodb DAO")
 	p.client = client
 	p.businessId = businessId
 }
 
 // List - List all Collections
-func (t *ProductMongoDBDao) List(filter string, sort string, skip int64, limit int64) (utils.Map, error) {
+func (t *DiscountMongoDBDao) List(filter string, sort string, skip int64, limit int64) (utils.Map, error) {
 	var results []utils.Map
 
-	log.Println("Begin - Find All Collection Dao", sales_common.DbProduct)
+	log.Println("Begin - Find All Collection Dao", sales_common.DbDiscounts)
 
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbProduct)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbDiscounts)
 	if err != nil {
 		return nil, err
 	}
@@ -88,7 +88,7 @@ func (t *ProductMongoDBDao) List(filter string, sort string, skip int64, limit i
 		return nil, err
 	}
 
-	//log.Println("End - Find All Collection Dao", results)
+	log.Println("End - Find All Collection Dao", results)
 
 	listdata := []utils.Map{}
 	for idx, value := range results {
@@ -125,19 +125,19 @@ func (t *ProductMongoDBDao) List(filter string, sort string, skip int64, limit i
 }
 
 // Get - Get by code
-func (p *ProductMongoDBDao) Get(productId string) (utils.Map, error) {
+func (t *DiscountMongoDBDao) Get(disountId string) (utils.Map, error) {
 	// Get a single document
 	var result utils.Map
 
-	log.Println("ProductMongoDBDao::Get:: Begin ", productId)
+	log.Println("DiscountMongoDBDao::Get:: Begin ", disountId)
 
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(p.client, sales_common.DbProduct)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbDiscounts)
 	log.Println("Get:: Got Collection ")
 
-	filter := bson.D{{Key: sales_common.FLD_PRODUCT_ID, Value: productId}, {}}
+	filter := bson.D{{Key: sales_common.FLD_DISCOUNT_ID, Value: disountId}, {}}
 
 	filter = append(filter,
-		bson.E{Key: sales_common.FLD_BUSINESS_ID, Value: p.businessId},
+		bson.E{Key: sales_common.FLD_BUSINESS_ID, Value: t.businessId},
 		bson.E{Key: db_common.FLD_IS_DELETED, Value: false})
 
 	log.Println("Get:: Got filter ", filter)
@@ -155,18 +155,18 @@ func (p *ProductMongoDBDao) Get(productId string) (utils.Map, error) {
 	// Remove fields from result
 	result = db_common.AmendFldsForGet(result)
 
-	log.Printf("Business Product Dao::Get:: End Found a single document: %+v\n", result)
+	log.Printf("Business DiscountMongoDBDao::Get:: End Found a single document: %+v\n", result)
 	return result, nil
 }
 
 // Find - Find by Filter
-func (p *ProductMongoDBDao) Find(filter string) (utils.Map, error) {
+func (p *DiscountMongoDBDao) Find(filter string) (utils.Map, error) {
 	// Find a single document
 	var result utils.Map
 
-	log.Println("ProductDBDao::Find:: Begin ", filter)
+	log.Println("DISCOUNTDBDao::Find:: Begin ", filter)
 
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(p.client, sales_common.DbProduct)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(p.client, sales_common.DbDiscounts)
 	log.Println("Find:: Got Collection ", err)
 
 	bfilter := bson.D{}
@@ -193,42 +193,42 @@ func (p *ProductMongoDBDao) Find(filter string) (utils.Map, error) {
 	// Remove fields from result
 	result = db_common.AmendFldsForGet(result)
 
-	log.Println("ProductDBDao::Find:: End Found a single document: \n", err)
+	log.Println("DISCOUNTDBDao::Find:: End Found a single document: \n", err)
 	return result, nil
 }
 
 // Create - Create Collection
-func (t *ProductMongoDBDao) Create(indata utils.Map) (utils.Map, error) {
+func (t *DiscountMongoDBDao) Create(indata utils.Map) (utils.Map, error) {
 
-	log.Println("Product Save - Begin", indata)
-
-	//BusinessProduct
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbProduct)
+	log.Println("Discount Save - Begin", indata)
+	//Sales Discount
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbDiscounts)
 	if err != nil {
+		log.Println("Error in insert ", err)
 		return utils.Map{}, err
 	}
 	// Add Fields for Create
 	indata = db_common.AmendFldsforCreate(indata)
 
-	insertResultProduct, err := collection.InsertOne(ctx, indata)
+	insertResult1, err := collection.InsertOne(ctx, indata)
 	if err != nil {
 		log.Println("Error in insert ", err)
 		return utils.Map{}, err
 
 	}
-	log.Println("Inserted a single document: ", insertResultProduct.InsertedID)
-	log.Println("Save - End", indata[sales_common.FLD_PRODUCT_ID])
+	log.Println("Inserted a single document: ", insertResult1.InsertedID)
+	log.Println("Save - End", indata[sales_common.FLD_DISCOUNT_ID])
 
-	return indata, nil
+	return t.Get(indata[sales_common.FLD_DISCOUNT_ID].(string))
 }
 
 // Update - Update Collection
-func (t *ProductMongoDBDao) Update(productId string, indata utils.Map) (utils.Map, error) {
+func (t *DiscountMongoDBDao) Update(disountId string, indata utils.Map) (utils.Map, error) {
 
 	log.Println("Update - Begin")
 
-	//BusinessProduct
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbProduct)
+	//Sales Discount
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbDiscounts)
 	if err != nil {
 		return utils.Map{}, err
 	}
@@ -236,39 +236,39 @@ func (t *ProductMongoDBDao) Update(productId string, indata utils.Map) (utils.Ma
 	indata = db_common.AmendFldsforUpdate(indata)
 	log.Printf("Update - Values %v", indata)
 
-	filterProduct := bson.D{{Key: sales_common.FLD_PRODUCT_ID, Value: productId}}
-	updateResultProduct, err := collection.UpdateOne(ctx, filterProduct, bson.D{{Key: "$set", Value: indata}})
+	filterDISCOUNT := bson.D{{Key: sales_common.FLD_DISCOUNT_ID, Value: disountId}}
+	updateResult1, err := collection.UpdateOne(ctx, filterDISCOUNT, bson.D{{Key: "$set", Value: indata}})
 	if err != nil {
 		return utils.Map{}, err
 	}
-	log.Println("Update a single document: ", updateResultProduct.ModifiedCount)
+	log.Println("Update a single document: ", updateResult1.ModifiedCount)
 
 	log.Println("Update - End")
-	return t.Get(productId)
+	return t.Get(disountId)
 }
 
 // Delete - Delete Collection
-func (t *ProductMongoDBDao) Delete(productId string) (int64, error) {
+func (t *DiscountMongoDBDao) Delete(disountId string) (int64, error) {
 
-	log.Println("ProductMongoDBDao::Delete - Begin ", productId)
+	log.Println("DiscountMongoDBDao::Delete - Begin ", disountId)
 
-	//BusinessProduct
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbProduct)
+	// Sales Discount
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbDiscounts)
 	if err != nil {
 		return 0, err
 	}
-	optsProduct := options.Delete().SetCollation(&options.Collation{
+	optsDISCOUNT := options.Delete().SetCollation(&options.Collation{
 		Locale:    db_common.LOCALE,
 		Strength:  1,
 		CaseLevel: false,
 	})
 
-	filterProduct := bson.D{{Key: sales_common.FLD_PRODUCT_ID, Value: productId}}
-	resProduct, err := collection.DeleteOne(ctx, filterProduct, optsProduct)
+	filterDISCOUNT := bson.D{{Key: sales_common.FLD_DISCOUNT_ID, Value: disountId}}
+	resDISCOUNT, err := collection.DeleteOne(ctx, filterDISCOUNT, optsDISCOUNT)
 	if err != nil {
 		log.Println("Error in delete ", err)
 		return 0, err
 	}
-	log.Printf("ProductMongoDBDao::Delete - End deleted %v documents\n", resProduct.DeletedCount)
-	return resProduct.DeletedCount, nil
+	log.Printf("DiscountMongoDBDao::Delete - End deleted %v documents\n", resDISCOUNT.DeletedCount)
+	return resDISCOUNT.DeletedCount, nil
 }

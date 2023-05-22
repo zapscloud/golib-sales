@@ -12,27 +12,27 @@ const (
 	// Database Prefix
 	DbPrefix = db_common.DB_COLLECTION_PREFIX
 	// Collection Names
-	DbRegion           = DbPrefix + "sales_region"
-	DbBanner           = DbPrefix + "sales_banner"
-	DbBrand            = DbPrefix + "sales_brands"
-	DbCatalogue        = DbPrefix + "sales_catalogue"
-	DbCategory         = DbPrefix + "sales_category"
-	DbProduct          = DbPrefix + "sales_products"
-	DbTestimonial      = DbPrefix + "sales_testimonial"
-	DbBlog             = DbPrefix + "sales_blog"
-	DbCustomer         = DbPrefix + "sales_customer"
-	DbCustomerOrder    = DbPrefix + "sales_customer_order"
-	DbCustomerCart     = DbPrefix + "sales_customer_cart"
-	DbCustomerWishlist = DbPrefix + "sales_customer_wishlist"
-	DbCustomerReview   = DbPrefix + "sales_customer_review"
-	DbPolicies         = DbPrefix + "sales_policies"
-	DbPayment          = DbPrefix + "sales_payment"
-	DbNavigation       = DbPrefix + "sales_navigation"
-	DbPreference       = DbPrefix + "sales_preference"
-	DbPage             = DbPrefix + "sales_page"
-	DbDealer           = DbPrefix + "sales_dealer"
-
-	DbMedia = DbPrefix + "sales_media"
+	DbRegions           = DbPrefix + "sales_regions"
+	DbBanners           = DbPrefix + "sales_banners"
+	DbBrands            = DbPrefix + "sales_brands"
+	DbCatalogues        = DbPrefix + "sales_catalogues"
+	DbCategories        = DbPrefix + "sales_categories"
+	DbProducts          = DbPrefix + "sales_products"
+	DbTestimonials      = DbPrefix + "sales_testimonials"
+	DbBlogs             = DbPrefix + "sales_blogs"
+	DbCustomers         = DbPrefix + "sales_customers"
+	DbCustomerOrders    = DbPrefix + "sales_customer_orders"
+	DbCustomerCarts     = DbPrefix + "sales_customer_carts"
+	DbCustomerWishlists = DbPrefix + "sales_customer_wishlists"
+	DbCustomerReviews   = DbPrefix + "sales_customer_reviews"
+	DbPolicies          = DbPrefix + "sales_policies"
+	DbPayments          = DbPrefix + "sales_payments"
+	DbNavigations       = DbPrefix + "sales_navigations"
+	DbPreferences       = DbPrefix + "sales_preferences"
+	DbPages             = DbPrefix + "sales_pages"
+	DbDealers           = DbPrefix + "sales_dealers"
+	DbDiscounts         = DbPrefix + "sales_discounts"
+	DbMedias            = DbPrefix + "sales_medias"
 )
 
 // Product Module table fields
@@ -126,6 +126,9 @@ const (
 
 	// Fields for Media
 	FLD_MEDIA_ID = "media_id"
+
+	// Fields for Discount
+	FLD_DISCOUNT_ID = "discount_id"
 )
 
 func init() {

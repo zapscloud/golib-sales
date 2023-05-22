@@ -12,8 +12,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// PaymentMongoDBDao - Payment DAO Repository
-type PaymentMongoDBDao struct {
+// BlogMongoDBDao - Blog DAO Repository
+type BlogMongoDBDao struct {
 	client     utils.Map
 	businessId string
 }
@@ -22,19 +22,19 @@ func init() {
 	log.SetFlags(log.Lshortfile | log.LstdFlags | log.Lmicroseconds)
 }
 
-func (p *PaymentMongoDBDao) InitializeDao(client utils.Map, businessId string) {
-	log.Println("Initialize Payment Mongodb DAO")
+func (p *BlogMongoDBDao) InitializeDao(client utils.Map, businessId string) {
+	log.Println("Initialize Blog Mongodb DAO")
 	p.client = client
 	p.businessId = businessId
 }
 
 // List - List all Collections
-func (t *PaymentMongoDBDao) List(filter string, sort string, skip int64, limit int64) (utils.Map, error) {
+func (t *BlogMongoDBDao) List(filter string, sort string, skip int64, limit int64) (utils.Map, error) {
 	var results []utils.Map
 
-	log.Println("Begin - Find All Collection Dao", sales_common.DbPayment)
+	log.Println("Begin - Find All Collection Dao", sales_common.DbBlogs)
 
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbPayment)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbBlogs)
 	if err != nil {
 		return nil, err
 	}
@@ -125,16 +125,16 @@ func (t *PaymentMongoDBDao) List(filter string, sort string, skip int64, limit i
 }
 
 // Get - Get by code
-func (t *PaymentMongoDBDao) Get(paymentId string) (utils.Map, error) {
+func (t *BlogMongoDBDao) Get(blogId string) (utils.Map, error) {
 	// Get a single document
 	var result utils.Map
 
-	log.Println("PaymentMongoDBDao::Get:: Begin ", paymentId)
+	log.Println("BlogMongoDBDao::Get:: Begin ", blogId)
 
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbPayment)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbBlogs)
 	log.Println("Get:: Got Collection ")
 
-	filter := bson.D{{Key: sales_common.FLD_PAYMENT_ID, Value: paymentId}, {}}
+	filter := bson.D{{Key: sales_common.FLD_BLOG_ID, Value: blogId}, {}}
 
 	filter = append(filter,
 		bson.E{Key: sales_common.FLD_BUSINESS_ID, Value: t.businessId},
@@ -155,18 +155,18 @@ func (t *PaymentMongoDBDao) Get(paymentId string) (utils.Map, error) {
 	// Remove fields from result
 	result = db_common.AmendFldsForGet(result)
 
-	log.Printf("Business PaymentMongoDBDao::Get:: End Found a single document: %+v\n", result)
+	log.Printf("Business BlogMongoDBDao::Get:: End Found a single document: %+v\n", result)
 	return result, nil
 }
 
 // Find - Find by Filter
-func (p *PaymentMongoDBDao) Find(filter string) (utils.Map, error) {
+func (p *BlogMongoDBDao) Find(filter string) (utils.Map, error) {
 	// Find a single document
 	var result utils.Map
 
-	log.Println("PaymentDBDao::Find:: Begin ", filter)
+	log.Println("BlogDBDao::Find:: Begin ", filter)
 
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(p.client, sales_common.DbPayment)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(p.client, sales_common.DbBlogs)
 	log.Println("Find:: Got Collection ", err)
 
 	bfilter := bson.D{}
@@ -193,16 +193,16 @@ func (p *PaymentMongoDBDao) Find(filter string) (utils.Map, error) {
 	// Remove fields from result
 	result = db_common.AmendFldsForGet(result)
 
-	log.Println("PaymentDBDao::Find:: End Found a single document: \n", err)
+	log.Println("BlogDBDao::Find:: End Found a single document: \n", err)
 	return result, nil
 }
 
 // Create - Create Collection
-func (t *PaymentMongoDBDao) Create(indata utils.Map) (utils.Map, error) {
+func (t *BlogMongoDBDao) Create(indata utils.Map) (utils.Map, error) {
 
-	log.Println("Payment Save - Begin", indata)
-	//Sales Payment
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbPayment)
+	log.Println("Blog Save - Begin", indata)
+	//Sales Blog
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbBlogs)
 	if err != nil {
 		log.Println("Error in insert ", err)
 		return utils.Map{}, err
@@ -217,18 +217,18 @@ func (t *PaymentMongoDBDao) Create(indata utils.Map) (utils.Map, error) {
 
 	}
 	log.Println("Inserted a single document: ", insertResult1.InsertedID)
-	log.Println("Save - End", indata[sales_common.FLD_PAYMENT_ID])
+	log.Println("Save - End", indata[sales_common.FLD_BLOG_ID])
 
-	return t.Get(indata[sales_common.FLD_PAYMENT_ID].(string))
+	return t.Get(indata[sales_common.FLD_BLOG_ID].(string))
 }
 
 // Update - Update Collection
-func (t *PaymentMongoDBDao) Update(paymentId string, indata utils.Map) (utils.Map, error) {
+func (t *BlogMongoDBDao) Update(blogId string, indata utils.Map) (utils.Map, error) {
 
 	log.Println("Update - Begin")
 
-	//Sales Payment
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbPayment)
+	//Sales BLOG
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbBlogs)
 	if err != nil {
 		return utils.Map{}, err
 	}
@@ -236,39 +236,39 @@ func (t *PaymentMongoDBDao) Update(paymentId string, indata utils.Map) (utils.Ma
 	indata = db_common.AmendFldsforUpdate(indata)
 	log.Printf("Update - Values %v", indata)
 
-	filterPayment := bson.D{{Key: sales_common.FLD_PAYMENT_ID, Value: paymentId}}
-	updateResult1, err := collection.UpdateOne(ctx, filterPayment, bson.D{{Key: "$set", Value: indata}})
+	filterBlog := bson.D{{Key: sales_common.FLD_BLOG_ID, Value: blogId}}
+	updateResult1, err := collection.UpdateOne(ctx, filterBlog, bson.D{{Key: "$set", Value: indata}})
 	if err != nil {
 		return utils.Map{}, err
 	}
 	log.Println("Update a single document: ", updateResult1.ModifiedCount)
 
 	log.Println("Update - End")
-	return t.Get(paymentId)
+	return t.Get(blogId)
 }
 
 // Delete - Delete Collection
-func (t *PaymentMongoDBDao) Delete(paymentId string) (int64, error) {
+func (t *BlogMongoDBDao) Delete(blogId string) (int64, error) {
 
-	log.Println("PaymentMongoDBDao::Delete - Begin ", paymentId)
+	log.Println("BlogMongoDBDao::Delete - Begin ", blogId)
 
-	// Sales Payment
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbPayment)
+	// Sales Blog
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbBlogs)
 	if err != nil {
 		return 0, err
 	}
-	optsPayment := options.Delete().SetCollation(&options.Collation{
+	optsBlog := options.Delete().SetCollation(&options.Collation{
 		Locale:    db_common.LOCALE,
 		Strength:  1,
 		CaseLevel: false,
 	})
 
-	filterPayment := bson.D{{Key: sales_common.FLD_PAYMENT_ID, Value: paymentId}}
-	resPayment, err := collection.DeleteOne(ctx, filterPayment, optsPayment)
+	filterBlog := bson.D{{Key: sales_common.FLD_BLOG_ID, Value: blogId}}
+	resBlog, err := collection.DeleteOne(ctx, filterBlog, optsBlog)
 	if err != nil {
 		log.Println("Error in delete ", err)
 		return 0, err
 	}
-	log.Printf("PaymentMongoDBDao::Delete - End deleted %v documents\n", resPayment.DeletedCount)
-	return resPayment.DeletedCount, nil
+	log.Printf("BlogMongoDBDao::Delete - End deleted %v documents\n", resBlog.DeletedCount)
+	return resBlog.DeletedCount, nil
 }

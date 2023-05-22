@@ -12,8 +12,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// BannerMongoDBDao - Banner DAO Repository
-type BannerMongoDBDao struct {
+// NavigationMongoDBDao - Navigation DAO Repository
+type NavigationMongoDBDao struct {
 	client     utils.Map
 	businessId string
 }
@@ -22,19 +22,19 @@ func init() {
 	log.SetFlags(log.Lshortfile | log.LstdFlags | log.Lmicroseconds)
 }
 
-func (p *BannerMongoDBDao) InitializeDao(client utils.Map, businessId string) {
-	log.Println("Initialize Banner Mongodb DAO")
+func (p *NavigationMongoDBDao) InitializeDao(client utils.Map, businessId string) {
+	log.Println("Initialize Navigation Mongodb DAO")
 	p.client = client
 	p.businessId = businessId
 }
 
 // List - List all Collections
-func (t *BannerMongoDBDao) List(filter string, sort string, skip int64, limit int64) (utils.Map, error) {
+func (t *NavigationMongoDBDao) List(filter string, sort string, skip int64, limit int64) (utils.Map, error) {
 	var results []utils.Map
 
-	log.Println("Begin - Find All Collection Dao", sales_common.DbBanner)
+	log.Println("Begin - Find All Collection Dao", sales_common.DbNavigations)
 
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbBanner)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbNavigations)
 	if err != nil {
 		return nil, err
 	}
@@ -125,16 +125,16 @@ func (t *BannerMongoDBDao) List(filter string, sort string, skip int64, limit in
 }
 
 // Get - Get by code
-func (t *BannerMongoDBDao) Get(bannerId string) (utils.Map, error) {
+func (t *NavigationMongoDBDao) Get(navigationId string) (utils.Map, error) {
 	// Get a single document
 	var result utils.Map
 
-	log.Println("BannerMongoDBDao::Get:: Begin ", bannerId)
+	log.Println("NavigationMongoDBDao::Get:: Begin ", navigationId)
 
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbBanner)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbNavigations)
 	log.Println("Get:: Got Collection ")
 
-	filter := bson.D{{Key: sales_common.FLD_BANNER_ID, Value: bannerId}, {}}
+	filter := bson.D{{Key: sales_common.FLD_NAVIGATION_ID, Value: navigationId}, {}}
 
 	filter = append(filter,
 		bson.E{Key: sales_common.FLD_BUSINESS_ID, Value: t.businessId},
@@ -155,18 +155,18 @@ func (t *BannerMongoDBDao) Get(bannerId string) (utils.Map, error) {
 	// Remove fields from result
 	result = db_common.AmendFldsForGet(result)
 
-	log.Printf("Business BannerMongoDBDao::Get:: End Found a single document: %+v\n", result)
+	log.Printf("Business NavigationMongoDBDao::Get:: End Found a single document: %+v\n", result)
 	return result, nil
 }
 
 // Find - Find by Filter
-func (p *BannerMongoDBDao) Find(filter string) (utils.Map, error) {
+func (p *NavigationMongoDBDao) Find(filter string) (utils.Map, error) {
 	// Find a single document
 	var result utils.Map
 
-	log.Println("BannerDBDao::Find:: Begin ", filter)
+	log.Println("NavigationDBDao::Find:: Begin ", filter)
 
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(p.client, sales_common.DbBanner)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(p.client, sales_common.DbNavigations)
 	log.Println("Find:: Got Collection ", err)
 
 	bfilter := bson.D{}
@@ -193,16 +193,16 @@ func (p *BannerMongoDBDao) Find(filter string) (utils.Map, error) {
 	// Remove fields from result
 	result = db_common.AmendFldsForGet(result)
 
-	log.Println("BannerDBDao::Find:: End Found a single document: \n", err)
+	log.Println("NavigationDBDao::Find:: End Found a single document: \n", err)
 	return result, nil
 }
 
 // Create - Create Collection
-func (t *BannerMongoDBDao) Create(indata utils.Map) (utils.Map, error) {
+func (t *NavigationMongoDBDao) Create(indata utils.Map) (utils.Map, error) {
 
-	log.Println("Banner Save - Begin", indata)
-	//Sales Banner
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbBanner)
+	log.Println("Navigation Save - Begin", indata)
+	//Sales Navigation
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbNavigations)
 	if err != nil {
 		log.Println("Error in insert ", err)
 		return utils.Map{}, err
@@ -217,18 +217,18 @@ func (t *BannerMongoDBDao) Create(indata utils.Map) (utils.Map, error) {
 
 	}
 	log.Println("Inserted a single document: ", insertResult1.InsertedID)
-	log.Println("Save - End", indata[sales_common.FLD_BANNER_ID])
+	log.Println("Save - End", indata[sales_common.FLD_NAVIGATION_ID])
 
-	return t.Get(indata[sales_common.FLD_BANNER_ID].(string))
+	return t.Get(indata[sales_common.FLD_NAVIGATION_ID].(string))
 }
 
 // Update - Update Collection
-func (t *BannerMongoDBDao) Update(bannerId string, indata utils.Map) (utils.Map, error) {
+func (t *NavigationMongoDBDao) Update(navigationId string, indata utils.Map) (utils.Map, error) {
 
 	log.Println("Update - Begin")
 
-	//Sales Banner
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbBanner)
+	//Sales Navigation
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbNavigations)
 	if err != nil {
 		return utils.Map{}, err
 	}
@@ -236,39 +236,39 @@ func (t *BannerMongoDBDao) Update(bannerId string, indata utils.Map) (utils.Map,
 	indata = db_common.AmendFldsforUpdate(indata)
 	log.Printf("Update - Values %v", indata)
 
-	filterBanner := bson.D{{Key: sales_common.FLD_BANNER_ID, Value: bannerId}}
-	updateResult1, err := collection.UpdateOne(ctx, filterBanner, bson.D{{Key: "$set", Value: indata}})
+	filterNavigation := bson.D{{Key: sales_common.FLD_NAVIGATION_ID, Value: navigationId}}
+	updateResult1, err := collection.UpdateOne(ctx, filterNavigation, bson.D{{Key: "$set", Value: indata}})
 	if err != nil {
 		return utils.Map{}, err
 	}
 	log.Println("Update a single document: ", updateResult1.ModifiedCount)
 
 	log.Println("Update - End")
-	return t.Get(bannerId)
+	return t.Get(navigationId)
 }
 
 // Delete - Delete Collection
-func (t *BannerMongoDBDao) Delete(bannerId string) (int64, error) {
+func (t *NavigationMongoDBDao) Delete(navigationId string) (int64, error) {
 
-	log.Println("BannerMongoDBDao::Delete - Begin ", bannerId)
+	log.Println("NavigationMongoDBDao::Delete - Begin ", navigationId)
 
-	// Sales Banner
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbBanner)
+	// Sales Navigation
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbNavigations)
 	if err != nil {
 		return 0, err
 	}
-	optsBanner := options.Delete().SetCollation(&options.Collation{
+	optsNavigation := options.Delete().SetCollation(&options.Collation{
 		Locale:    db_common.LOCALE,
 		Strength:  1,
 		CaseLevel: false,
 	})
 
-	filterBanner := bson.D{{Key: sales_common.FLD_BANNER_ID, Value: bannerId}}
-	resBanner, err := collection.DeleteOne(ctx, filterBanner, optsBanner)
+	filterNavigation := bson.D{{Key: sales_common.FLD_NAVIGATION_ID, Value: navigationId}}
+	resNavigation, err := collection.DeleteOne(ctx, filterNavigation, optsNavigation)
 	if err != nil {
 		log.Println("Error in delete ", err)
 		return 0, err
 	}
-	log.Printf("BannerMongoDBDao::Delete - End deleted %v documents\n", resBanner.DeletedCount)
-	return resBanner.DeletedCount, nil
+	log.Printf("NavigationMongoDBDao::Delete - End deleted %v documents\n", resNavigation.DeletedCount)
+	return resNavigation.DeletedCount, nil
 }

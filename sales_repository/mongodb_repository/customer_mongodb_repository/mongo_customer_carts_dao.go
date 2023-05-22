@@ -34,9 +34,9 @@ func (p *CustomerCartMongoDBDao) InitializeDao(client utils.Map, businessId stri
 func (t *CustomerCartMongoDBDao) List(filter string, sort string, skip int64, limit int64) (utils.Map, error) {
 	var results []utils.Map
 
-	log.Println("Begin - Find All Collection Dao", sales_common.DbCustomerCart)
+	log.Println("Begin - Find All Collection Dao", sales_common.DbCustomerCarts)
 
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCustomerCart)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCustomerCarts)
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +136,7 @@ func (t *CustomerCartMongoDBDao) Get(cartId string) (utils.Map, error) {
 
 	log.Println("CustomerCartMongoDBDao::Get:: Begin ", cartId)
 
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCustomerCart)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCustomerCarts)
 	log.Println("Get:: Got Collection ")
 
 	filter := bson.D{{Key: sales_common.FLD_CART_ID, Value: cartId}, {}}
@@ -172,7 +172,7 @@ func (p *CustomerCartMongoDBDao) Find(filter string) (utils.Map, error) {
 
 	log.Println("CartDBDao::Find:: Begin ", filter)
 
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(p.client, sales_common.DbCustomerCart)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(p.client, sales_common.DbCustomerCarts)
 	log.Println("Find:: Got Collection ", err)
 
 	bfilter := bson.D{}
@@ -209,7 +209,7 @@ func (t *CustomerCartMongoDBDao) Create(indata utils.Map) (utils.Map, error) {
 
 	log.Println("Cart Save - Begin", indata)
 	//Sales Cart
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCustomerCart)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCustomerCarts)
 	if err != nil {
 		log.Println("Error in insert ", err)
 		return utils.Map{}, err
@@ -235,7 +235,7 @@ func (t *CustomerCartMongoDBDao) Update(cartId string, indata utils.Map) (utils.
 	log.Println("Update - Begin")
 
 	//Sales Cart
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCustomerCart)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCustomerCarts)
 	if err != nil {
 		return utils.Map{}, err
 	}
@@ -260,7 +260,7 @@ func (t *CustomerCartMongoDBDao) Delete(cartId string) (int64, error) {
 	log.Println("CustomerCartMongoDBDao::Delete - Begin ", cartId)
 
 	// Sales Cart
-	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCustomerCart)
+	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCustomerCarts)
 	if err != nil {
 		return 0, err
 	}
