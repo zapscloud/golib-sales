@@ -37,6 +37,14 @@ const (
 	DbCampaigns         = DbPrefix + "sales_campaigns"
 )
 
+const (
+	ORDER_STATUS_ORDERED   = "Orderd"
+	ORDER_STATUS_CONFIRMED = "Confirmed"
+	ORDER_STATUS_REJECTED  = "Rejected"
+	ORDER_STATUS_FULFILLED = "Fulfilled"
+	ORDER_STATUS_DELIVERED = "Delivered"
+)
+
 // Product Module table fields
 const (
 	// Common fields for all tables
@@ -82,9 +90,10 @@ const (
 	FLD_BLOG_NAME = "blog_name"
 
 	//Fields for CustomerOrder
-	FLD_CUSTOMER_ORDER_ID   = "customer_order_id"
-	FLD_CUSTOMER_ORDER_NO   = "customer_order_no" // Auto generated Sequence Number
-	FLD_CUSTOMER_ORDER_NAME = "customer_order_name"
+	FLD_CUSTOMER_ORDER_ID     = "customer_order_id"
+	FLD_CUSTOMER_ORDER_NO     = "customer_order_no" // Auto generated Sequence Number
+	FLD_CUSTOMER_ORDER_NAME   = "customer_order_name"
+	FLD_CUSTOMER_ORDER_STATUS = "order_status"
 
 	// Fields for Customer Table
 	FLD_CUSTOMER_ID       = "customer_id"
