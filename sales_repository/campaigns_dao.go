@@ -34,7 +34,7 @@ func NewCampaignDao(client utils.Map, business_id string) CampaignDao {
 
 	switch dbType {
 	case db_common.DATABASE_TYPE_MONGODB:
-		daoCampaign = &mongodb_repository.MediaMongoDBDao{}
+		daoCampaign = &mongodb_repository.CampaignMongoDBDao{}
 	case db_common.DATABASE_TYPE_ZAPSDB:
 		// *Not Implemented yet*
 	case db_common.DATABASE_TYPE_MYSQLDB:
