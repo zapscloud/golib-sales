@@ -34,6 +34,7 @@ const (
 	DbDiscounts         = DbPrefix + "sales_discounts"
 	DbMedias            = DbPrefix + "sales_medias"
 	DbQuiz              = DbPrefix + "sales_quiz"
+	DbCampaigns         = DbPrefix + "sales_campaigns"
 )
 
 // Product Module table fields
@@ -133,6 +134,10 @@ const (
 
 	// Fields for Quiz
 	FLD_QUIZ_ID = "quiz_id"
+
+	// Fields for Campaign
+	FLD_CAMPAIGN_ID   = "campaign_id"
+	FLD_CAMPAIGN_NAME = "campaign_name"
 )
 
 func init() {
