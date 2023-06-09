@@ -38,11 +38,11 @@ const (
 )
 
 const (
-	ORDER_STATUS_ORDERED   = "Ordered"
-	ORDER_STATUS_CONFIRMED = "Confirmed"
-	ORDER_STATUS_REJECTED  = "Rejected"
-	ORDER_STATUS_FULFILLED = "Fulfilled"
-	ORDER_STATUS_DELIVERED = "Delivered"
+	ORDER_STATUS_ORDERED   = "ordered"
+	ORDER_STATUS_CONFIRMED = "confirmed"
+	ORDER_STATUS_REJECTED  = "rejected"
+	ORDER_STATUS_FULFILLED = "fulfilled"
+	ORDER_STATUS_DELIVERED = "delivered"
 )
 
 // Product Module table fields
