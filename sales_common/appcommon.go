@@ -38,7 +38,7 @@ const (
 )
 
 const (
-	ORDER_STATUS_ORDERED   = "Orderd"
+	ORDER_STATUS_ORDERED   = "Ordered"
 	ORDER_STATUS_CONFIRMED = "Confirmed"
 	ORDER_STATUS_REJECTED  = "Rejected"
 	ORDER_STATUS_FULFILLED = "Fulfilled"
