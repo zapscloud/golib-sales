@@ -102,7 +102,7 @@ func (p *campaignBaseService) Get(campaignId string) (utils.Map, error) {
 
 	data, err := p.daoCampaign.Get(campaignId)
 
-	log.Println("campaignBaseService::Get:: End ", data, err)
+	log.Println("campaignBaseService::Get:: End ", err)
 	return data, err
 }
 
@@ -110,7 +110,7 @@ func (p *campaignBaseService) Find(filter string) (utils.Map, error) {
 	fmt.Println("campaignBaseService::FindByCode::  Begin ", filter)
 
 	data, err := p.daoCampaign.Find(filter)
-	log.Println("campaignBaseService::FindByCode:: End ", data, err)
+	log.Println("campaignBaseService::FindByCode:: End ", err)
 	return data, err
 }
 

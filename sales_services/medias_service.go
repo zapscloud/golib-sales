@@ -102,7 +102,7 @@ func (p *mediaBaseService) Get(mediaId string) (utils.Map, error) {
 
 	data, err := p.daoMedia.Get(mediaId)
 
-	log.Println("mediaBaseService::Get:: End ", data, err)
+	log.Println("mediaBaseService::Get:: End ", err)
 	return data, err
 }
 
@@ -110,7 +110,7 @@ func (p *mediaBaseService) Find(filter string) (utils.Map, error) {
 	fmt.Println("mediaBaseService::FindByCode::  Begin ", filter)
 
 	data, err := p.daoMedia.Find(filter)
-	log.Println("mediaBaseService::FindByCode:: End ", data, err)
+	log.Println("mediaBaseService::FindByCode:: End ", err)
 	return data, err
 }
 

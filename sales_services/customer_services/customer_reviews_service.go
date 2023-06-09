@@ -122,7 +122,7 @@ func (p *customerreviewBaseService) Get(reviewId string) (utils.Map, error) {
 
 	data, err := p.daoCustomerReview.Get(reviewId)
 
-	log.Println("customerreviewBaseService::Get:: End ", data, err)
+	log.Println("customerreviewBaseService::Get:: End ", err)
 	return data, err
 }
 
@@ -130,7 +130,7 @@ func (p *customerreviewBaseService) Find(filter string) (utils.Map, error) {
 	fmt.Println("customerreviewBaseService::FindByCode::  Begin ", filter)
 
 	data, err := p.daoCustomerReview.Find(filter)
-	log.Println("customerreviewBaseService::FindByCode:: End ", data, err)
+	log.Println("customerreviewBaseService::FindByCode:: End ", err)
 	return data, err
 }
 

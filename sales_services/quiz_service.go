@@ -101,7 +101,7 @@ func (p *quizBaseService) Get(quizId string) (utils.Map, error) {
 
 	data, err := p.daoQuiz.Get(quizId)
 
-	log.Println("quizBaseService::Get:: End ", data, err)
+	log.Println("quizBaseService::Get:: End ", err)
 	return data, err
 }
 
@@ -109,7 +109,7 @@ func (p *quizBaseService) Find(filter string) (utils.Map, error) {
 	fmt.Println("QuizService::FindByCode::  Begin ", filter)
 
 	data, err := p.daoQuiz.Find(filter)
-	log.Println("QuizService::FindByCode:: End ", data, err)
+	log.Println("QuizService::FindByCode:: End ", err)
 	return data, err
 }
 

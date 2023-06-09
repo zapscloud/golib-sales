@@ -106,7 +106,7 @@ func (p *productBaseService) Get(productId string) (utils.Map, error) {
 
 	data, err := p.daoProduct.Get(productId)
 
-	log.Println("ProductService::Get:: End ", data, err)
+	log.Println("ProductService::Get:: End ", err)
 	return data, err
 }
 
@@ -114,7 +114,7 @@ func (p *productBaseService) Find(filter string) (utils.Map, error) {
 	fmt.Println("productBaseService::FindByCode::  Begin ", filter)
 
 	data, err := p.daoProduct.Find(filter)
-	log.Println("productBaseService::FindByCode:: End ", data, err)
+	log.Println("productBaseService::FindByCode:: End ", err)
 	return data, err
 }
 

@@ -106,7 +106,7 @@ func (p *policiesBaseService) Get(policyId string) (utils.Map, error) {
 
 	data, err := p.daoPolicies.Get(policyId)
 
-	log.Println("PoliciesService::Get:: End ", data, err)
+	log.Println("PoliciesService::Get:: End ", err)
 	return data, err
 }
 
@@ -114,7 +114,7 @@ func (p *policiesBaseService) Find(filter string) (utils.Map, error) {
 	fmt.Println("PoliciesBaseService::FindByCode::  Begin ", filter)
 
 	data, err := p.daoPolicies.Find(filter)
-	log.Println("PoliciesBaseService::FindByCode:: End ", data, err)
+	log.Println("PoliciesBaseService::FindByCode:: End ", err)
 	return data, err
 }
 

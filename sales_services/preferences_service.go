@@ -106,7 +106,7 @@ func (p *preferenceBaseService) Get(preferenceId string) (utils.Map, error) {
 
 	data, err := p.daoPreference.Get(preferenceId)
 
-	log.Println("PreferenceService::Get:: End ", data, err)
+	log.Println("PreferenceService::Get:: End ", err)
 	return data, err
 }
 
@@ -114,7 +114,7 @@ func (p *preferenceBaseService) Find(filter string) (utils.Map, error) {
 	fmt.Println("PreferenceBaseService::FindByCode::  Begin ", filter)
 
 	data, err := p.daoPreference.Find(filter)
-	log.Println("PreferenceBaseService::FindByCode:: End ", data, err)
+	log.Println("PreferenceBaseService::FindByCode:: End ", err)
 	return data, err
 }
 

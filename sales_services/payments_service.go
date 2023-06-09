@@ -106,7 +106,7 @@ func (p *paymentBaseService) Get(paymentId string) (utils.Map, error) {
 
 	data, err := p.daoPayment.Get(paymentId)
 
-	log.Println("PaymentService::Get:: End ", data, err)
+	log.Println("PaymentService::Get:: End ", err)
 	return data, err
 }
 
@@ -114,7 +114,7 @@ func (p *paymentBaseService) Find(filter string) (utils.Map, error) {
 	fmt.Println("PaymentBaseService::FindByCode::  Begin ", filter)
 
 	data, err := p.daoPayment.Find(filter)
-	log.Println("PaymentBaseService::FindByCode:: End ", data, err)
+	log.Println("PaymentBaseService::FindByCode:: End ", err)
 	return data, err
 }
 

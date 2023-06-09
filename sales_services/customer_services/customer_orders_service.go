@@ -122,7 +122,7 @@ func (p *customerOrderBaseService) Get(custOrderId string) (utils.Map, error) {
 
 	data, err := p.daoCustomerOrder.Get(custOrderId)
 
-	log.Println("customerOrderBaseService::Get:: End ", data, err)
+	log.Println("customerOrderBaseService::Get:: End ", err)
 	return data, err
 }
 
@@ -130,7 +130,7 @@ func (p *customerOrderBaseService) Find(filter string) (utils.Map, error) {
 	fmt.Println("customerOrderBaseService::FindByCode::  Begin ", filter)
 
 	data, err := p.daoCustomerOrder.Find(filter)
-	log.Println("customerOrderBaseService::FindByCode:: End ", data, err)
+	log.Println("customerOrderBaseService::FindByCode:: End ", err)
 	return data, err
 }
 

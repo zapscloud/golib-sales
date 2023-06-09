@@ -102,7 +102,7 @@ func (p *dealerBaseService) Get(dealerId string) (utils.Map, error) {
 
 	data, err := p.daoDealer.Get(dealerId)
 
-	log.Println("dealerBaseService::Get:: End ", data, err)
+	log.Println("dealerBaseService::Get:: End ", err)
 	return data, err
 }
 
@@ -110,7 +110,7 @@ func (p *dealerBaseService) Find(filter string) (utils.Map, error) {
 	fmt.Println("dealerService::FindByCode::  Begin ", filter)
 
 	data, err := p.daoDealer.Find(filter)
-	log.Println("dealerService::FindByCode:: End ", data, err)
+	log.Println("dealerService::FindByCode:: End ", err)
 	return data, err
 }
 

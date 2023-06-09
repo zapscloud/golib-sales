@@ -102,7 +102,7 @@ func (p *brandBaseService) Get(brandId string) (utils.Map, error) {
 
 	data, err := p.daoBrand.Get(brandId)
 
-	log.Println("brandBaseService::Get:: End ", data, err)
+	log.Println("brandBaseService::Get:: End ", err)
 	return data, err
 }
 
@@ -110,7 +110,7 @@ func (p *brandBaseService) Find(filter string) (utils.Map, error) {
 	fmt.Println("brandService::FindByCode::  Begin ", filter)
 
 	data, err := p.daoBrand.Find(filter)
-	log.Println("brandService::FindByCode:: End ", data, err)
+	log.Println("brandService::FindByCode:: End ", err)
 	return data, err
 }
 

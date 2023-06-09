@@ -101,7 +101,7 @@ func (p *navigationBaseService) Get(navigationId string) (utils.Map, error) {
 
 	data, err := p.daoNavigation.Get(navigationId)
 
-	log.Println("navigationBaseService::Get:: End ", data, err)
+	log.Println("navigationBaseService::Get:: End ", err)
 	return data, err
 }
 
@@ -109,7 +109,7 @@ func (p *navigationBaseService) Find(filter string) (utils.Map, error) {
 	fmt.Println("NavigationService::FindByCode::  Begin ", filter)
 
 	data, err := p.daoNavigation.Find(filter)
-	log.Println("NavigationService::FindByCode:: End ", data, err)
+	log.Println("NavigationService::FindByCode:: End ", err)
 	return data, err
 }
 

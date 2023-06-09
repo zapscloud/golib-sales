@@ -101,7 +101,7 @@ func (p *blogBaseService) Get(blogId string) (utils.Map, error) {
 
 	data, err := p.daoBlog.Get(blogId)
 
-	log.Println("blogBaseService::Get:: End ", data, err)
+	log.Println("blogBaseService::Get:: End ", err)
 	return data, err
 }
 
@@ -109,7 +109,7 @@ func (p *blogBaseService) Find(filter string) (utils.Map, error) {
 	fmt.Println("BlogService::FindByCode::  Begin ", filter)
 
 	data, err := p.daoBlog.Find(filter)
-	log.Println("BlogService::FindByCode:: End ", data, err)
+	log.Println("BlogService::FindByCode:: End ", err)
 	return data, err
 }
 

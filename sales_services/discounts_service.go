@@ -101,7 +101,7 @@ func (p *discountBaseService) Get(discountId string) (utils.Map, error) {
 
 	data, err := p.daoDiscount.Get(discountId)
 
-	log.Println("discountBaseService::Get:: End ", data, err)
+	log.Println("discountBaseService::Get:: End ", err)
 	return data, err
 }
 
@@ -109,7 +109,7 @@ func (p *discountBaseService) Find(filter string) (utils.Map, error) {
 	fmt.Println("DiscountService::FindByCode::  Begin ", filter)
 
 	data, err := p.daoDiscount.Find(filter)
-	log.Println("DiscountService::FindByCode:: End ", data, err)
+	log.Println("DiscountService::FindByCode:: End ", err)
 	return data, err
 }
 

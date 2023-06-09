@@ -102,7 +102,7 @@ func (p *pageBaseService) Get(pageId string) (utils.Map, error) {
 
 	data, err := p.daoPage.Get(pageId)
 
-	log.Println("pageBaseService::Get:: End ", data, err)
+	log.Println("pageBaseService::Get:: End ", err)
 	return data, err
 }
 
@@ -110,7 +110,7 @@ func (p *pageBaseService) Find(filter string) (utils.Map, error) {
 	fmt.Println("pageBaseService::FindByCode::  Begin ", filter)
 
 	data, err := p.daoPage.Find(filter)
-	log.Println("pageBaseService::FindByCode:: End ", data, err)
+	log.Println("pageBaseService::FindByCode:: End ", err)
 	return data, err
 }
 

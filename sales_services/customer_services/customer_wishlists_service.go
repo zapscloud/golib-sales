@@ -122,7 +122,7 @@ func (p *customerwishlistBaseService) Get(wishlistId string) (utils.Map, error) 
 
 	data, err := p.daoCustomerWishlist.Get(wishlistId)
 
-	log.Println("customerwishlistBaseService::Get:: End ", data, err)
+	log.Println("customerwishlistBaseService::Get:: End ", err)
 	return data, err
 }
 
@@ -130,7 +130,7 @@ func (p *customerwishlistBaseService) Find(filter string) (utils.Map, error) {
 	fmt.Println("customerwishlistBaseService::FindByCode::  Begin ", filter)
 
 	data, err := p.daoCustomerWishlist.Find(filter)
-	log.Println("customerwishlistBaseService::FindByCode:: End ", data, err)
+	log.Println("customerwishlistBaseService::FindByCode:: End ", err)
 	return data, err
 }
 

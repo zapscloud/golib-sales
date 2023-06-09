@@ -103,7 +103,7 @@ func (p *categoryBaseService) Get(categoryId string) (utils.Map, error) {
 
 	data, err := p.daoCategory.Get(categoryId)
 
-	log.Println("BrandService::Get:: End ", data, err)
+	log.Println("BrandService::Get:: End ", err)
 	return data, err
 }
 
@@ -111,7 +111,7 @@ func (p *categoryBaseService) Find(filter string) (utils.Map, error) {
 	fmt.Println("categoryBaseService::FindByCode::  Begin ", filter)
 
 	data, err := p.daoCategory.Find(filter)
-	log.Println("categoryBaseService::FindByCode:: End ", data, err)
+	log.Println("categoryBaseService::FindByCode:: End ", err)
 	return data, err
 }
 

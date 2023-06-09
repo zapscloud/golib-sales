@@ -103,7 +103,7 @@ func (p *catalogueBaseService) Get(catalogueId string) (utils.Map, error) {
 
 	data, err := p.daoCatalogue.Get(catalogueId)
 
-	log.Println("BrandService::Get:: End ", data, err)
+	log.Println("BrandService::Get:: End ", err)
 	return data, err
 }
 
@@ -111,7 +111,7 @@ func (p *catalogueBaseService) Find(filter string) (utils.Map, error) {
 	fmt.Println("catalogueBaseService::FindByCode::  Begin ", filter)
 
 	data, err := p.daoCatalogue.Find(filter)
-	log.Println("catalogueBaseService::FindByCode:: End ", data, err)
+	log.Println("catalogueBaseService::FindByCode:: End ", err)
 	return data, err
 }
 

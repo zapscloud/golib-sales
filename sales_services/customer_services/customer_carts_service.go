@@ -121,7 +121,7 @@ func (p *customerCartBaseService) Get(cartId string) (utils.Map, error) {
 
 	data, err := p.daoCustomerCart.Get(cartId)
 
-	log.Println("customerCartBaseService::Get:: End ", data, err)
+	log.Println("customerCartBaseService::Get:: End ", err)
 	return data, err
 }
 
@@ -129,7 +129,7 @@ func (p *customerCartBaseService) Find(filter string) (utils.Map, error) {
 	fmt.Println("CustomerCartService::FindByCode::  Begin ", filter)
 
 	data, err := p.daoCustomerCart.Find(filter)
-	log.Println("CustomerCartService::FindByCode:: End ", data, err)
+	log.Println("CustomerCartService::FindByCode:: End ", err)
 	return data, err
 }
 

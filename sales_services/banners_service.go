@@ -101,7 +101,7 @@ func (p *bannerBaseService) Get(bannerId string) (utils.Map, error) {
 
 	data, err := p.daoBanner.Get(bannerId)
 
-	log.Println("bannerBaseService::Get:: End ", data, err)
+	log.Println("bannerBaseService::Get:: End ", err)
 	return data, err
 }
 
@@ -109,7 +109,7 @@ func (p *bannerBaseService) Find(filter string) (utils.Map, error) {
 	fmt.Println("BannerService::FindByCode::  Begin ", filter)
 
 	data, err := p.daoBanner.Find(filter)
-	log.Println("BannerService::FindByCode:: End ", data, err)
+	log.Println("BannerService::FindByCode:: End ", err)
 	return data, err
 }
 

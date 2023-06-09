@@ -101,7 +101,7 @@ func (p *regionBaseService) Get(regionId string) (utils.Map, error) {
 
 	data, err := p.daoRegion.Get(regionId)
 
-	log.Println("regionBaseService::Get:: End ", data, err)
+	log.Println("regionBaseService::Get:: End ", err)
 	return data, err
 }
 
@@ -109,7 +109,7 @@ func (p *regionBaseService) Find(filter string) (utils.Map, error) {
 	fmt.Println("RegionService::FindByCode::  Begin ", filter)
 
 	data, err := p.daoRegion.Find(filter)
-	log.Println("RegionService::FindByCode:: End ", data, err)
+	log.Println("RegionService::FindByCode:: End ", err)
 	return data, err
 }
 

@@ -109,7 +109,7 @@ func (p *customerBaseService) Get(customerId string) (utils.Map, error) {
 	// Delete the Password
 	delete(data, sales_common.FLD_CUSTOMER_PASSWORD)
 
-	log.Println("customerBaseService::Get:: End ", data, err)
+	log.Println("customerBaseService::Get:: End ", err)
 	return data, err
 }
 
@@ -117,7 +117,7 @@ func (p *customerBaseService) Find(filter string) (utils.Map, error) {
 	fmt.Println("CustomerService::FindByCode::  Begin ", filter)
 
 	data, err := p.daoCustomer.Find(filter)
-	log.Println("CustomerService::FindByCode:: End ", data, err)
+	log.Println("CustomerService::FindByCode:: End ", err)
 	return data, err
 }
 

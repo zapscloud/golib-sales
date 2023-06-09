@@ -101,7 +101,7 @@ func (p *testimonialBaseService) Get(testimonialId string) (utils.Map, error) {
 
 	data, err := p.daoTestimonial.Get(testimonialId)
 
-	log.Println("testimonialBaseService::Get:: End ", data, err)
+	log.Println("testimonialBaseService::Get:: End ", err)
 	return data, err
 }
 
@@ -109,7 +109,7 @@ func (p *testimonialBaseService) Find(filter string) (utils.Map, error) {
 	fmt.Println("TestimonialService::FindByCode::  Begin ", filter)
 
 	data, err := p.daoTestimonial.Find(filter)
-	log.Println("TestimonialService::FindByCode:: End ", data, err)
+	log.Println("TestimonialService::FindByCode:: End ", err)
 	return data, err
 }
 
