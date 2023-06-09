@@ -88,7 +88,7 @@ func (t *ProductMongoDBDao) List(filter string, sort string, skip int64, limit i
 		return nil, err
 	}
 
-	//log.Println("End - Find All Collection Dao", results)
+	//
 
 	listdata := []utils.Map{}
 	for idx, value := range results {
@@ -155,7 +155,7 @@ func (p *ProductMongoDBDao) Get(productId string) (utils.Map, error) {
 	// Remove fields from result
 	result = db_common.AmendFldsForGet(result)
 
-	log.Printf("Business Product Dao::Get:: End Found a single document: %+v\n", result)
+	log.Printf("Business Product Dao::Get:: End Found a single document\n")
 	return result, nil
 }
 

@@ -89,8 +89,6 @@ func (t *CustomerMongoDBDao) List(filter string, sort string, skip int64, limit 
 		return nil, err
 	}
 
-	log.Println("End - Find All Collection Dao", results)
-
 	listdata := []utils.Map{}
 	for idx, value := range results {
 		log.Println("Item ", idx)
@@ -156,7 +154,7 @@ func (t *CustomerMongoDBDao) Get(customerId string) (utils.Map, error) {
 	// Remove fields from result
 	result = db_common.AmendFldsForGet(result)
 
-	log.Printf("Business CustomerMongoDBDao::Get:: End Found a single document: %+v\n", result)
+	log.Printf("Business CustomerMongoDBDao::Get:: End Found a single document\n")
 	return result, nil
 }
 
@@ -308,6 +306,6 @@ func (t *CustomerMongoDBDao) Authenticate(auth_key string, auth_login string, au
 	// Remove fields from result
 	result = db_common.AmendFldsForGet(result)
 
-	log.Printf("AppUserMongoDBDao::Find:: End Found a single document: %+v\n", result)
+	log.Printf("AppUserMongoDBDao::Find:: End Found a single document\n")
 	return result, nil
 }

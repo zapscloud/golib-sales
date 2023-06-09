@@ -88,8 +88,6 @@ func (t *CatalogueMongoDBDao) List(filter string, sort string, skip int64, limit
 		return nil, err
 	}
 
-	log.Println("End - Find All Collection Dao", results)
-
 	listdata := []utils.Map{}
 	for idx, value := range results {
 		log.Println("Item ", idx)
@@ -153,7 +151,7 @@ func (p *CatalogueMongoDBDao) Get(catalogueId string) (utils.Map, error) {
 		return result, err
 	}
 
-	log.Printf("CatalogueMongoDBDao::Get:: End Found a single document: %+v\n", result)
+	log.Printf("CatalogueMongoDBDao::Get:: End Found a single document\n")
 	return result, nil
 }
 

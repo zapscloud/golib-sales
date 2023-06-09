@@ -95,8 +95,6 @@ func (t *CustomerReviewMongoDBDao) List(filter string, sort string, skip int64, 
 		return nil, err
 	}
 
-	log.Println("End - Find All Collection Dao", results)
-
 	listdata := []utils.Map{}
 	for idx, value := range results {
 		log.Println("Item ", idx)
@@ -173,7 +171,7 @@ func (p *CustomerReviewMongoDBDao) Get(reviewId string) (utils.Map, error) {
 	// Remove fields from result
 	result = db_common.AmendFldsForGet(result)
 
-	log.Printf("Business CustomerReviewMongoDBDao::Get:: End Found a single document: %+v\n", result)
+	log.Printf("Business CustomerReviewMongoDBDao::Get:: End Found a single document\n")
 	return result, nil
 }
 
