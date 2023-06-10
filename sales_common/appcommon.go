@@ -40,7 +40,7 @@ const (
 const (
 	ORDER_STATUS_ORDERED   = "ordered"
 	ORDER_STATUS_CONFIRMED = "confirmed"
-	ORDER_STATUS_REJECTED  = "rejected"
+	ORDER_STATUS_FAILED    = "failed"
 	ORDER_STATUS_FULFILLED = "fulfilled"
 	ORDER_STATUS_DELIVERED = "delivered"
 )
