@@ -123,16 +123,16 @@ func (t *StatesMongoDBDao) List(filter string, sort string, skip int64, limit in
 }
 
 // Get - Get by code
-func (t *StatesMongoDBDao) Get(regionId string) (utils.Map, error) {
+func (t *StatesMongoDBDao) Get(stateId string) (utils.Map, error) {
 	// Get a single document
 	var result utils.Map
 
-	log.Println("StatesMongoDBDao::Get:: Begin ", regionId)
+	log.Println("StatesMongoDBDao::Get:: Begin ", stateId)
 
 	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbStates)
 	log.Println("Get:: Got Collection ")
 
-	filter := bson.D{{Key: sales_common.FLD_REGION_ID, Value: regionId}, {}}
+	filter := bson.D{{Key: sales_common.FLD_STATE_ID, Value: stateId}, {}}
 
 	filter = append(filter,
 		bson.E{Key: sales_common.FLD_BUSINESS_ID, Value: t.businessId},
@@ -162,7 +162,7 @@ func (p *StatesMongoDBDao) Find(filter string) (utils.Map, error) {
 	// Find a single document
 	var result utils.Map
 
-	log.Println("RegionDBDao::Find:: Begin ", filter)
+	log.Println("StatesDBDao::Find:: Begin ", filter)
 
 	collection, ctx, err := mongo_utils.GetMongoDbCollection(p.client, sales_common.DbStates)
 	log.Println("Find:: Got Collection ", err)
@@ -191,7 +191,7 @@ func (p *StatesMongoDBDao) Find(filter string) (utils.Map, error) {
 	// Remove fields from result
 	result = db_common.AmendFldsForGet(result)
 
-	log.Println("RegionDBDao::Find:: End Found a single document: \n", err)
+	log.Println("StatesDBDao::Find:: End Found a single document: \n", err)
 	return result, nil
 }
 
@@ -215,13 +215,13 @@ func (t *StatesMongoDBDao) Create(indata utils.Map) (utils.Map, error) {
 
 	}
 	log.Println("Inserted a single document: ", insertResult1.InsertedID)
-	log.Println("Save - End", indata[sales_common.FLD_REGION_ID])
+	log.Println("Save - End", indata[sales_common.FLD_STATE_ID])
 
-	return t.Get(indata[sales_common.FLD_REGION_ID].(string))
+	return t.Get(indata[sales_common.FLD_STATE_ID].(string))
 }
 
 // Update - Update Collection
-func (t *StatesMongoDBDao) Update(regionId string, indata utils.Map) (utils.Map, error) {
+func (t *StatesMongoDBDao) Update(stateId string, indata utils.Map) (utils.Map, error) {
 
 	log.Println("Update - Begin")
 
@@ -234,39 +234,39 @@ func (t *StatesMongoDBDao) Update(regionId string, indata utils.Map) (utils.Map,
 	indata = db_common.AmendFldsforUpdate(indata)
 	log.Printf("Update - Values %v", indata)
 
-	filterRegion := bson.D{{Key: sales_common.FLD_REGION_ID, Value: regionId}}
-	updateResult1, err := collection.UpdateOne(ctx, filterRegion, bson.D{{Key: "$set", Value: indata}})
+	filterStates := bson.D{{Key: sales_common.FLD_STATE_ID, Value: stateId}}
+	updateResult1, err := collection.UpdateOne(ctx, filterStates, bson.D{{Key: "$set", Value: indata}})
 	if err != nil {
 		return utils.Map{}, err
 	}
 	log.Println("Update a single document: ", updateResult1.ModifiedCount)
 
 	log.Println("Update - End")
-	return t.Get(regionId)
+	return t.Get(stateId)
 }
 
 // Delete - Delete Collection
-func (t *StatesMongoDBDao) Delete(regionId string) (int64, error) {
+func (t *StatesMongoDBDao) Delete(stateId string) (int64, error) {
 
-	log.Println("StatesMongoDBDao::Delete - Begin ", regionId)
+	log.Println("StatesMongoDBDao::Delete - Begin ", stateId)
 
 	// Sales States
 	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbStates)
 	if err != nil {
 		return 0, err
 	}
-	optsRegion := options.Delete().SetCollation(&options.Collation{
+	optsStates := options.Delete().SetCollation(&options.Collation{
 		Locale:    db_common.LOCALE,
 		Strength:  1,
 		CaseLevel: false,
 	})
 
-	filterRegion := bson.D{{Key: sales_common.FLD_REGION_ID, Value: regionId}}
-	resRegion, err := collection.DeleteOne(ctx, filterRegion, optsRegion)
+	filterStates := bson.D{{Key: sales_common.FLD_STATE_ID, Value: stateId}}
+	resStates, err := collection.DeleteOne(ctx, filterStates, optsStates)
 	if err != nil {
 		log.Println("Error in delete ", err)
 		return 0, err
 	}
-	log.Printf("StatesMongoDBDao::Delete - End deleted %v documents\n", resRegion.DeletedCount)
-	return resRegion.DeletedCount, nil
+	log.Printf("StatesMongoDBDao::Delete - End deleted %v documents\n", resStates.DeletedCount)
+	return resStates.DeletedCount, nil
 }
