@@ -123,7 +123,7 @@ func (p *statesBaseService) Create(indata utils.Map) (utils.Map, error) {
 	if dataok {
 		statesId = strings.ToLower(dataval.(string))
 	} else {
-		statesId = utils.GenerateUniqueId("rgn")
+		statesId = utils.GenerateUniqueId("stat")
 		log.Println("Unique States ID", statesId)
 	}
 
