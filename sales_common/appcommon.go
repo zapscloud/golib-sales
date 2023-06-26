@@ -35,6 +35,7 @@ const (
 	DbMedias            = DbPrefix + "sales_medias"
 	DbQuiz              = DbPrefix + "sales_quiz"
 	DbCampaigns         = DbPrefix + "sales_campaigns"
+	DbStates            = DbPrefix + "sales_states"
 )
 
 const (
@@ -147,6 +148,13 @@ const (
 	// Fields for Campaign
 	FLD_CAMPAIGN_ID   = "campaign_id"
 	FLD_CAMPAIGN_NAME = "campaign_name"
+
+	// Fields for Region
+	FLD_STATE_ID           = "sales_state_id"
+	FLD_STATE_NAME         = "sales_state_name"
+	FLD_STATE_PINCODES     = "sales_state_pincodes"
+	FLD_STATE_PINCODE_FROM = "pincode_from"
+	FLD_STATE_PINCODE_TO   = "pincode_to"
 )
 
 func init() {
