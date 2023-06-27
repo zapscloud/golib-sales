@@ -36,6 +36,7 @@ const (
 	DbQuiz              = DbPrefix + "sales_quiz"
 	DbCampaigns         = DbPrefix + "sales_campaigns"
 	DbStates            = DbPrefix + "sales_states"
+	DbRatings           = DbPrefix + "sales_ratings"
 )
 
 const (
@@ -149,12 +150,15 @@ const (
 	FLD_CAMPAIGN_ID   = "campaign_id"
 	FLD_CAMPAIGN_NAME = "campaign_name"
 
-	// Fields for Region
+	// Fields for States
 	FLD_STATE_ID           = "sales_state_id"
 	FLD_STATE_NAME         = "sales_state_name"
 	FLD_STATE_PINCODES     = "sales_state_pincodes"
 	FLD_STATE_PINCODE_FROM = "pincode_from"
 	FLD_STATE_PINCODE_TO   = "pincode_to"
+
+	// Fields for Ratings
+	FLD_RATING_ID = "sales_rating_id"
 )
 
 func init() {

@@ -7,27 +7,27 @@ import (
 	"github.com/zapscloud/golib-utils/utils"
 )
 
-// StatesDao - Card DAO Repository
-type StatesDao interface {
+// RatingsDao - Card DAO Repository
+type RatingsDao interface {
 	// InitializeDao
 	InitializeDao(client utils.Map, businessId string)
 	//List - List all Collections
 	List(filter string, sort string, skip int64, limit int64) (utils.Map, error)
 	// Get - Get by code
-	Get(stateId string) (utils.Map, error)
+	Get(ratingId string) (utils.Map, error)
 	// Find - Find by filter
 	Find(filter string) (utils.Map, error)
 	// Create - Create Collection
 	Create(indata utils.Map) (utils.Map, error)
 	// Update - Update Collection
-	Update(stateId string, indata utils.Map) (utils.Map, error)
+	Update(ratingId string, indata utils.Map) (utils.Map, error)
 	// Delete - Delete Collection
-	Delete(stateId string) (int64, error)
+	Delete(ratingId string) (int64, error)
 }
 
-// NewStatesDao - Contruct Business States Dao
-func NewStatesDao(client utils.Map, business_id string) StatesDao {
-	var daoStates StatesDao = nil
+// NewRatingsDao - Contruct Business Ratings Dao
+func NewRatingsDao(client utils.Map, business_id string) RatingsDao {
+	var daoRatings RatingsDao = nil
 
 	// Get DatabaseType and no need to validate error
 	// since the dbType was assigned with correct value after dbService was created
@@ -35,17 +35,17 @@ func NewStatesDao(client utils.Map, business_id string) StatesDao {
 
 	switch dbType {
 	case db_common.DATABASE_TYPE_MONGODB:
-		daoStates = &mongodb_repository.StatesMongoDBDao{}
+		daoRatings = &mongodb_repository.RatingsMongoDBDao{}
 	case db_common.DATABASE_TYPE_ZAPSDB:
 		// *Not Implemented yet*
 	case db_common.DATABASE_TYPE_MYSQLDB:
 		// *Not Implemented yet*
 	}
 
-	if daoStates != nil {
+	if daoRatings != nil {
 		// Initialize the Dao
-		daoStates.InitializeDao(client, business_id)
+		daoRatings.InitializeDao(client, business_id)
 	}
 
-	return daoStates
+	return daoRatings
 }
