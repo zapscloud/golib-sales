@@ -119,7 +119,7 @@ func (p *ratingsBaseService) Create(indata utils.Map) (utils.Map, error) {
 	log.Println("RatingsService::Create - Begin")
 	var ratingId string
 
-	dataval, dataok := indata[sales_common.FLD_STATE_ID]
+	dataval, dataok := indata[sales_common.FLD_RATING_ID]
 	if dataok {
 		ratingId = strings.ToLower(dataval.(string))
 	} else {
@@ -129,7 +129,7 @@ func (p *ratingsBaseService) Create(indata utils.Map) (utils.Map, error) {
 
 	// Assign BusinessId
 	indata[sales_common.FLD_BUSINESS_ID] = p.businessId
-	indata[sales_common.FLD_STATE_ID] = ratingId
+	indata[sales_common.FLD_RATING_ID] = ratingId
 
 	data, err := p.daoRatings.Create(indata)
 	if err != nil {
