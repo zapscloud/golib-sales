@@ -38,6 +38,7 @@ const (
 	DbStates            = DbPrefix + "sales_states"
 	DbRatings           = DbPrefix + "sales_ratings"
 	DbMaterialTypes     = DbPrefix + "sales_material_types"
+	DbCoupons           = DbPrefix + "sales_coupons"
 )
 
 const (
@@ -165,6 +166,10 @@ const (
 	FLD_MATERIAL_TYPE_ID            = "material_type_id"
 	FLD_MATERIAL_TYPE_NAME          = "material_type_name"
 	FLD_MATERIAL_TYPE_DISPLAY_ORDER = "material_type_display_order" // display order
+
+	// Fields for Coupons
+	FLD_COUPON_ID   = "coupon_id"
+	FLD_COUPON_CODE = "coupon_code"
 )
 
 func init() {
