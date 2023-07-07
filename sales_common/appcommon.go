@@ -162,9 +162,9 @@ const (
 	FLD_RATING_ID = "sales_rating_id"
 
 	// Fields for Material Types
-	FLD_MATERIAL_TYPE_ID    = "material_type_id"
-	FLD_MATERIAL_TYPE_NAME  = "material_type_name"
-	FLD_MATERIAL_TYPE_DISPLAY_ORDER = "meterial_type_display_order" // display order
+	FLD_MATERIAL_TYPE_ID            = "material_type_id"
+	FLD_MATERIAL_TYPE_NAME          = "material_type_name"
+	FLD_MATERIAL_TYPE_DISPLAY_ORDER = "material_type_display_order" // display order
 )
 
 func init() {
