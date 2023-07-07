@@ -37,6 +37,7 @@ const (
 	DbCampaigns         = DbPrefix + "sales_campaigns"
 	DbStates            = DbPrefix + "sales_states"
 	DbRatings           = DbPrefix + "sales_ratings"
+	DbMaterialTypes     = DbPrefix + "sales_material_types"
 )
 
 const (
@@ -159,6 +160,11 @@ const (
 
 	// Fields for Ratings
 	FLD_RATING_ID = "sales_rating_id"
+
+	// Fields for Material Types
+	FLD_MATERIAL_TYPE_ID    = "material_type_id"
+	FLD_MATERIAL_TYPE_NAME  = "material_type_name"
+	FLD_MATERIAL_TYPE_DISPLAY_ORDER = "meterial_type_display_order" // display order
 )
 
 func init() {
