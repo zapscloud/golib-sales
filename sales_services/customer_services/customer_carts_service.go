@@ -53,13 +53,13 @@ func NewCustomerCartService(props utils.Map) (CustomerCartService, error) {
 	}
 	log.Printf("CustomerCartService ")
 	// Verify whether the business id data passed
-	businessId, err := utils.IsMemberExist(props, sales_common.FLD_BUSINESS_ID)
+	businessId, err := utils.GetMemberDataStr(props, sales_common.FLD_BUSINESS_ID)
 	if err != nil {
 		return nil, err
 	}
 
 	// Verify whether the User id data passed
-	customerId, err := utils.IsMemberExist(props, sales_common.FLD_CUSTOMER_ID)
+	customerId, err := utils.GetMemberDataStr(props, sales_common.FLD_CUSTOMER_ID)
 	if err != nil {
 		return nil, err
 	}

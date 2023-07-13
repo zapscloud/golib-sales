@@ -49,7 +49,7 @@ func NewRegionService(props utils.Map) (RegionService, error) {
 	}
 	log.Printf("RegionService ")
 	// Verify whether the business id data passed
-	businessId, err := utils.IsMemberExist(props, sales_common.FLD_BUSINESS_ID)
+	businessId, err := utils.GetMemberDataStr(props, sales_common.FLD_BUSINESS_ID)
 	if err != nil {
 		return nil, err
 	}
