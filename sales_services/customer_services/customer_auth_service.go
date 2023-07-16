@@ -16,7 +16,7 @@ func ValidateAuthCredential(dbProps utils.Map, dataAuth utils.Map) (utils.Map, e
 	log.Printf("ValidateAppAuth %v", dataAuth)
 
 	// Authenticate with Clients tables
-	_, _, clientData, err := auth_services.AuthenticateClient(dbProps, dataAuth)
+	clientType, clientScope, clientData, err := auth_services.AuthenticateClient(dbProps, dataAuth)
 	if err != nil {
 		return nil, err
 	}
@@ -44,10 +44,23 @@ func ValidateAuthCredential(dbProps utils.Map, dataAuth utils.Map) (utils.Map, e
 	// ============[ Grant_Type: Password Credentials ] ======================================
 	case auth_common.GRANT_TYPE_PASSWORD:
 
-		// For all other cases like WebApp, MobileApp and etc
-		businessId, err := utils.GetMemberDataStr(mapScopes, platform_common.FLD_BUSINESS_ID)
-		if err != nil {
-			return nil, err
+		var businessId string = ""
+		// Obtain BusinessId value
+
+		switch clientType {
+		case auth_common.CLIENT_TYPE_COMMON_APP:
+			if clientScope == auth_common.CLIENT_SCOPE_PLATFORM {
+				// BusinessId not needed so skip it
+			} else {
+				// For all other cases like WebApp, MobileApp and etc
+				businessId, err = utils.GetMemberDataStr(mapScopes, platform_common.FLD_BUSINESS_ID)
+				if err != nil {
+					return nil, err
+				}
+			}
+		case auth_common.CLIENT_TYPE_BUSINESS_APP:
+			// ClientScope will be considered as BusinessId
+			businessId = clientScope // Take clientScope as businessId
 		}
 
 		// Validate BusinessId is exist
