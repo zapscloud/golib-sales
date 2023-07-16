@@ -31,7 +31,37 @@ func ValidateAuthCredential(dbProps utils.Map, dataAuth utils.Map) (utils.Map, e
 
 	// Get Scope values if anything passed
 	mapScopes := auth_services.ParseScope(dataAuth)
-	log.Println("Scopes ", mapScopes)
+
+	// Obtain BusinessId value
+	var businessId string = ""
+
+	switch clientType {
+	case auth_common.CLIENT_TYPE_COMMON_APP:
+		if clientScope == auth_common.CLIENT_SCOPE_PLATFORM {
+			// BusinessId not needed so skip it
+		} else {
+			// For all other cases like WebApp, MobileApp and etc
+			businessId, err = utils.GetMemberDataStr(mapScopes, platform_common.FLD_BUSINESS_ID)
+			if err != nil {
+				return nil, err
+			}
+		}
+	case auth_common.CLIENT_TYPE_BUSINESS_APP:
+		// ClientScope will be considered as BusinessId
+		businessId = clientScope // Take clientScope as businessId
+	}
+
+	// Validate BusinessId is exist
+	if !utils.IsEmpty(businessId) {
+		_, err = auth_services.IsBusinessExist(dbProps, businessId)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// Assign BusinessId in AuthData
+	dataAuth[platform_common.FLD_BUSINESS_ID] = businessId
+
 	switch grantType {
 	//
 	// ============[ Grant_Type: Client Credentials ] ========================================
@@ -43,36 +73,6 @@ func ValidateAuthCredential(dbProps utils.Map, dataAuth utils.Map) (utils.Map, e
 	//
 	// ============[ Grant_Type: Password Credentials ] ======================================
 	case auth_common.GRANT_TYPE_PASSWORD:
-
-		var businessId string = ""
-		// Obtain BusinessId value
-
-		switch clientType {
-		case auth_common.CLIENT_TYPE_COMMON_APP:
-			if clientScope == auth_common.CLIENT_SCOPE_PLATFORM {
-				// BusinessId not needed so skip it
-			} else {
-				// For all other cases like WebApp, MobileApp and etc
-				businessId, err = utils.GetMemberDataStr(mapScopes, platform_common.FLD_BUSINESS_ID)
-				if err != nil {
-					return nil, err
-				}
-			}
-		case auth_common.CLIENT_TYPE_BUSINESS_APP:
-			// ClientScope will be considered as BusinessId
-			businessId = clientScope // Take clientScope as businessId
-		}
-
-		// Validate BusinessId is exist
-		if !utils.IsEmpty(businessId) {
-			_, err = auth_services.IsBusinessExist(dbProps, businessId)
-			if err != nil {
-				return nil, err
-			}
-		}
-
-		// Assign BusinessId in AuthData
-		dataAuth[platform_common.FLD_BUSINESS_ID] = businessId
 
 		// Authenticate Customer
 		custData, err := authenticateCustomer(dbProps, businessId, dataAuth)
