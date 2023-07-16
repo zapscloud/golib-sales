@@ -55,13 +55,13 @@ func NewCustomerCartService(props utils.Map) (CustomerCartService, error) {
 	// Verify whether the business id data passed
 	businessId, err := utils.GetMemberDataStr(props, sales_common.FLD_BUSINESS_ID)
 	if err != nil {
-		return nil, err
+		return p.errorReturn(err)
 	}
 
 	// Verify whether the User id data passed
 	customerId, err := utils.GetMemberDataStr(props, sales_common.FLD_CUSTOMER_ID)
 	if err != nil {
-		return nil, err
+		return p.errorReturn(err)
 	}
 
 	// Assign the BusinessId
@@ -73,14 +73,14 @@ func NewCustomerCartService(props utils.Map) (CustomerCartService, error) {
 	_, err = p.daoBusiness.Get(businessId)
 	if err != nil {
 		err := &utils.AppError{ErrorCode: funcode + "01", ErrorMsg: "Invalid BusinessId", ErrorDetail: "Given BusinessId is not exist"}
-		return nil, err
+		return p.errorReturn(err)
 	}
 
 	// Verify the Customer Exist
 	_, err = p.daoCustomer.Get(customerId)
 	if err != nil {
 		err := &utils.AppError{ErrorCode: funcode + "01", ErrorMsg: "Invalid CustomerId", ErrorDetail: "Given CustomerId is not exist"}
-		return nil, err
+		return p.errorReturn(err)
 	}
 
 	p.child = &p
@@ -199,4 +199,10 @@ func (p *customerCartBaseService) Delete(cartId string, delete_permanent bool) e
 
 	log.Printf("CustomerCartService::Delete - End")
 	return nil
+}
+
+func (p *customerCartBaseService) errorReturn(err error) (CustomerCartService, error) {
+	// Close the Database Connection
+	p.CloseDatabaseService()
+	return nil, err
 }

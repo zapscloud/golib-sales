@@ -53,7 +53,7 @@ func NewPoliciesService(props utils.Map) (PoliciesService, error) {
 	// Verify whether the business id data passed
 	businessId, err := utils.GetMemberDataStr(props, sales_common.FLD_BUSINESS_ID)
 	if err != nil {
-		return nil, err
+		return p.errorReturn(err)
 	}
 
 	// Assign the BusinessId
@@ -65,8 +65,8 @@ func NewPoliciesService(props utils.Map) (PoliciesService, error) {
 		err := &utils.AppError{
 			ErrorCode:   funcode + "01",
 			ErrorMsg:    "Invalid business_id",
-			ErrorDetail: "Given app_business_id is not exist"}
-		return nil, err
+			ErrorDetail: "Given business_id is not exist"}
+		return p.errorReturn(err)
 	}
 
 	p.child = &p
@@ -184,4 +184,10 @@ func (p *policiesBaseService) Delete(policyId string, delete_permanent bool) err
 
 	log.Printf("PoliciesService::Delete - End")
 	return nil
+}
+
+func (p *policiesBaseService) errorReturn(err error) (PoliciesService, error) {
+	// Close the Database Connection
+	p.CloseDatabaseService()
+	return nil, err
 }

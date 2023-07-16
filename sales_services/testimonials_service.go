@@ -51,7 +51,7 @@ func NewTestimonialService(props utils.Map) (TestimonialService, error) {
 	// Verify whether the business id data passed
 	businessId, err := utils.GetMemberDataStr(props, sales_common.FLD_BUSINESS_ID)
 	if err != nil {
-		return nil, err
+		return p.errorReturn(err)
 	}
 
 	// Assign the BusinessId
@@ -60,8 +60,8 @@ func NewTestimonialService(props utils.Map) (TestimonialService, error) {
 
 	_, err = p.daoBusiness.Get(businessId)
 	if err != nil {
-		err := &utils.AppError{ErrorCode: funcode + "01", ErrorMsg: "Invalid business_id", ErrorDetail: "Given app_business_id is not exist"}
-		return nil, err
+		err := &utils.AppError{ErrorCode: funcode + "01", ErrorMsg: "Invalid business_id", ErrorDetail: "Given business_id is not exist"}
+		return p.errorReturn(err)
 	}
 
 	p.child = &p
@@ -173,4 +173,10 @@ func (p *testimonialBaseService) Delete(testimonialId string, delete_permanent b
 
 	log.Printf("TestimonialService::Delete - End")
 	return nil
+}
+
+func (p *testimonialBaseService) errorReturn(err error) (TestimonialService, error) {
+	// Close the Database Connection
+	p.CloseDatabaseService()
+	return nil, err
 }

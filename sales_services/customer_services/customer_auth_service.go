@@ -15,74 +15,75 @@ func ValidateAuthCredential(dbProps utils.Map, dataAuth utils.Map) (utils.Map, e
 
 	log.Printf("ValidateAppAuth %v", dataAuth)
 
-	clientId := dataAuth[auth_common.CLIENT_ID].(string)
-	clientSecret := dataAuth[auth_common.CLIENT_SECRET].(string)
-
-	// Authenticate with AppClient tables
-	appClientData, err := auth_services.AuthenticateAppClient(dbProps, clientId, clientSecret)
+	// Authenticate with Clients tables
+	_, _, clientData, err := auth_services.AuthenticateClient(dbProps, dataAuth)
 	if err != nil {
 		return nil, err
 	}
-	businessId := appClientData[auth_common.CLIENT_SCOPE].(string)
-	log.Println("Auth Client Record ", appClientData, err)
+	log.Println("Auth Client Record ", clientData, err)
 
-	dataAuth[platform_common.FLD_CLIENT_TYPE] = appClientData[platform_common.FLD_CLIENT_TYPE].(string)
-	dataAuth[platform_common.FLD_CLIENT_SCOPE] = appClientData[platform_common.FLD_CLIENT_SCOPE].(string)
+	// Update Client Data in AuthData
+	dataAuth[platform_common.FLD_CLIENT_TYPE] = clientData[platform_common.FLD_CLIENT_TYPE].(string)
+	dataAuth[platform_common.FLD_CLIENT_SCOPE] = clientData[platform_common.FLD_CLIENT_SCOPE].(string)
 
-	mapScopes := utils.Map{}
-	if scopeValue, scopeOk := dataAuth[auth_common.SCOPE]; scopeOk && scopeValue.(string) != "" {
-		mapScopes = auth_services.ParseScope(scopeValue.(string))
-	}
+	// Get the GrantType
+	grantType := dataAuth[auth_common.GRANT_TYPE].(string)
 
+	// Get Scope values if anything passed
+	mapScopes := auth_services.ParseScope(dataAuth)
 	log.Println("Scopes ", mapScopes)
+	switch grantType {
+	//
+	// ============[ Grant_Type: Client Credentials ] ========================================
+	case auth_common.GRANT_TYPE_CLIENT_CREDENTIALS:
+		// Client Credentials not support for Customers
+		err = &utils.AppError{ErrorStatus: 417, ErrorMsg: "Status Expectation Failed", ErrorDetail: "Authentication Failure"}
+		return utils.Map{}, err
 
-	if dataAuth[auth_common.GRANT_TYPE] == auth_common.GRANT_TYPE_PASSWORD {
+	//
+	// ============[ Grant_Type: Password Credentials ] ======================================
+	case auth_common.GRANT_TYPE_PASSWORD:
 
-		// userType with "App" or "Business"
-		if userType, userTypeOk := mapScopes[auth_common.USER_TYPE]; userTypeOk &&
-			(userType.(string) == auth_common.USER_TYPE_CUSTOMER) {
+		// For all other cases like WebApp, MobileApp and etc
+		businessId, err := utils.GetMemberDataStr(mapScopes, platform_common.FLD_BUSINESS_ID)
+		if err != nil {
+			return nil, err
+		}
 
-			// Set default authKey as Customer LoginId
-			authKey := sales_common.FLD_CUSTOMER_LOGIN_ID
-			// if loginType, loginTypeOK := mapScopes[auth_common.LOGIN_TYPE]; loginTypeOK {
-
-			// 	loginType = loginType.(string)
-
-			// 	if loginType == auth_common.LOGIN_TYPE_PHONE {
-			// 		authKey = platform_common.FLD_APP_USER_PHONE
-			// 	} else if loginType == auth_common.LOGIN_TYPE_EMAIL {
-			// 		authKey = platform_common.FLD_APP_USER_EMAILID
-			// 	}
-			// }
-
-			authKeyValue := dataAuth[auth_common.USERNAME].(string)
-			authPassword := dataAuth[auth_common.PASSWORD].(string)
-			// Authenticate AppUser
-			custData, err := authenticateCustomer(dbProps, businessId, authKey, authKeyValue, authPassword)
+		// Validate BusinessId is exist
+		if !utils.IsEmpty(businessId) {
+			_, err = auth_services.IsBusinessExist(dbProps, businessId)
 			if err != nil {
-				return utils.Map{}, err
+				return nil, err
 			}
+		}
 
-			dataAuth[auth_common.USER_ID] = custData[sales_common.FLD_CUSTOMER_ID].(string)
+		// Assign BusinessId in AuthData
+		dataAuth[platform_common.FLD_BUSINESS_ID] = businessId
 
-		} else {
-			// No UserType or Other UserTypes
-			err := &utils.AppError{ErrorStatus: 401, ErrorMsg: "Invalid UserType", ErrorDetail: "UserType is invalid"}
+		// Authenticate Customer
+		custData, err := authenticateCustomer(dbProps, businessId, dataAuth)
+		if err != nil {
 			return utils.Map{}, err
 		}
-	} /*else if dataAuth[GRANT_TYPE] == GRANT_TYPE_REFRESH {
-		dataAuth.RefreshToken = ctx.FormValue("refresh_token")
-		err := &utils.AppError{ErrorStatus: 401, ErrorMsg: "Client DB Connection Error", ErrorDetail: "Client DB Connection Error"}
-		return utils.Map{}, err
-	}*/
+
+		dataAuth[auth_common.USER_ID] = custData[sales_common.FLD_CUSTOMER_ID].(string)
+
+	//
+	// ============[ Grant_Type: REFRESH ] ========================================
+	case auth_common.GRANT_TYPE_REFRESH:
+		/* Need to Implement Refersh Token */
+		//dataAuth.RefreshToken = ctx.FormValue("refresh_token")
+
+	}
 
 	log.Printf("Auth Values %v", dataAuth)
 	return dataAuth, nil
 }
 
-func authenticateCustomer(dbProps utils.Map, businessId string, auth_key string, auth_key_value string, auth_password string) (utils.Map, error) {
+func authenticateCustomer(dbProps utils.Map, businessId string, dataAuth utils.Map) (utils.Map, error) {
 
-	// Append Business Idl
+	// Append Business Id
 	dbProps[sales_common.FLD_BUSINESS_ID] = businessId
 
 	// User Validation
@@ -93,8 +94,24 @@ func authenticateCustomer(dbProps utils.Map, businessId string, auth_key string,
 	}
 	defer svcCustomer.EndService()
 
-	log.Println("Business::Auth:: Parameter Value ", auth_key, auth_key_value)
-	appUserData, err := svcCustomer.Authenticate(auth_key, auth_key_value, auth_password)
+	// Set default authKey as Customer LoginId
+	authKey := sales_common.FLD_CUSTOMER_LOGIN_ID
+	// if loginType, loginTypeOK := mapScopes[auth_common.LOGIN_TYPE]; loginTypeOK {
+
+	// 	loginType = loginType.(string)
+
+	// 	if loginType == auth_common.LOGIN_TYPE_PHONE {
+	// 		authKey = platform_common.FLD_APP_USER_PHONE
+	// 	} else if loginType == auth_common.LOGIN_TYPE_EMAIL {
+	// 		authKey = platform_common.FLD_APP_USER_EMAILID
+	// 	}
+	// }
+
+	authKeyValue := dataAuth[auth_common.USERNAME].(string)
+	authPassword := dataAuth[auth_common.PASSWORD].(string)
+
+	log.Println("Business::Auth:: Parameter Value ", authKey, authKeyValue)
+	appUserData, err := svcCustomer.Authenticate(authKey, authKeyValue, authPassword)
 	if err != nil {
 
 		err := &utils.AppError{ErrorStatus: 401, ErrorMsg: "Status Unauthorized", ErrorDetail: "Authentication Failure"}
