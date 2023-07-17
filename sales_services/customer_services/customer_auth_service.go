@@ -16,18 +16,15 @@ func ValidateAuthCredential(dbProps utils.Map, dataAuth utils.Map) (utils.Map, e
 	log.Printf("ValidateAppAuth %v", dataAuth)
 
 	// Authenticate with Clients tables
-	clientType, clientScope, clientData, err := auth_services.AuthenticateClient(dbProps, dataAuth)
+	clientData, err := auth_services.AuthenticateClient(dbProps, dataAuth)
 	if err != nil {
 		return nil, err
 	}
 	log.Println("Auth Client Record ", clientData, err)
 
-	// Update Client Data in AuthData
-	dataAuth[platform_common.FLD_CLIENT_TYPE] = clientData[platform_common.FLD_CLIENT_TYPE].(string)
-	dataAuth[platform_common.FLD_CLIENT_SCOPE] = clientData[platform_common.FLD_CLIENT_SCOPE].(string)
-
-	// Get the GrantType
-	grantType := dataAuth[auth_common.GRANT_TYPE].(string)
+	// Get clientType and clientScope from the clientData
+	clientType := clientData[platform_common.FLD_CLIENT_TYPE].(string)
+	clientScope := clientData[platform_common.FLD_CLIENT_SCOPE].(string)
 
 	// Get Scope values if anything passed
 	mapScopes := auth_services.ParseScope(dataAuth)
@@ -41,7 +38,7 @@ func ValidateAuthCredential(dbProps utils.Map, dataAuth utils.Map) (utils.Map, e
 			// BusinessId not needed so skip it
 		} else {
 			// For all other cases like WebApp, MobileApp and etc
-			businessId, err = utils.GetMemberDataStr(mapScopes, platform_common.FLD_BUSINESS_ID)
+			businessId, err = utils.GetMemberDataStr(mapScopes, auth_common.SCOPE_BUSINESS_ID)
 			if err != nil {
 				return nil, err
 			}
@@ -57,10 +54,16 @@ func ValidateAuthCredential(dbProps utils.Map, dataAuth utils.Map) (utils.Map, e
 		if err != nil {
 			return nil, err
 		}
-	}
 
-	// Assign BusinessId in AuthData
-	dataAuth[platform_common.FLD_BUSINESS_ID] = businessId
+		// Assign BusinessId in AuthData
+		dataAuth[platform_common.FLD_BUSINESS_ID] = businessId
+	}
+	// Update Client Data in AuthData
+	dataAuth[platform_common.FLD_CLIENT_TYPE] = clientType
+	dataAuth[platform_common.FLD_CLIENT_SCOPE] = clientScope
+
+	// Get the GrantType
+	grantType := dataAuth[auth_common.GRANT_TYPE].(string)
 
 	switch grantType {
 	//
@@ -79,7 +82,7 @@ func ValidateAuthCredential(dbProps utils.Map, dataAuth utils.Map) (utils.Map, e
 		if err != nil {
 			return utils.Map{}, err
 		}
-
+		// Update UserId to AuthData
 		dataAuth[auth_common.USER_ID] = custData[sales_common.FLD_CUSTOMER_ID].(string)
 
 	//
