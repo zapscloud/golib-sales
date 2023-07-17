@@ -39,6 +39,7 @@ const (
 	DbRatings           = DbPrefix + "sales_ratings"
 	DbMaterialTypes     = DbPrefix + "sales_material_types"
 	DbCoupons           = DbPrefix + "sales_coupons"
+	DbCustomerTypes     = DbPrefix + "sales_customer_types"
 )
 
 const (
@@ -104,6 +105,9 @@ const (
 	FLD_CUSTOMER_LOGIN_ID = "customer_loginid"
 	FLD_CUSTOMER_PASSWORD = "customer_password"
 	FLD_CUSTOMER_OTP      = "customer_otp"
+
+	// Field for Customer Type Table	
+	FLD_CUSTOMER_TYPE_ID = "customertype_id"
 
 	// Fields for Order
 	FLD_ORDER_ID   = "order_id"
