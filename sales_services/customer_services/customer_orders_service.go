@@ -69,9 +69,10 @@ func NewCustomerOrderService(props utils.Map) (CustomerOrderService, error) {
 	p.customerId = customerId
 	p.initializeService()
 
+	// Verify the Business Exists
 	_, err = p.daoBusiness.Get(businessId)
 	if err != nil {
-		err := &utils.AppError{ErrorCode: funcode + "01", ErrorMsg: "Invalid business_id", ErrorDetail: "Given business_id is not exist"}
+		err := &utils.AppError{ErrorCode: funcode + "01", ErrorMsg: "Invalid BusinessId", ErrorDetail: "Given BusinessId is not exist"}
 		return p.errorReturn(err)
 	}
 

@@ -58,11 +58,11 @@ func NewCustomerCartService(props utils.Map) (CustomerCartService, error) {
 		return p.errorReturn(err)
 	}
 
-	// Verify whether the User id data passed
-	customerId, err := utils.GetMemberDataStr(props, sales_common.FLD_CUSTOMER_ID)
-	if err != nil {
-		return p.errorReturn(err)
-	}
+	// Verify whether the User id data passed, this is optional parameter
+	customerId, _ := utils.GetMemberDataStr(props, sales_common.FLD_CUSTOMER_ID)
+	// if err != nil {
+	// 	return p.errorReturn(err)
+	// }
 
 	// Assign the BusinessId
 	p.businessId = businessId
@@ -77,10 +77,12 @@ func NewCustomerCartService(props utils.Map) (CustomerCartService, error) {
 	}
 
 	// Verify the Customer Exist
-	_, err = p.daoCustomer.Get(customerId)
-	if err != nil {
-		err := &utils.AppError{ErrorCode: funcode + "01", ErrorMsg: "Invalid CustomerId", ErrorDetail: "Given CustomerId is not exist"}
-		return p.errorReturn(err)
+	if len(customerId) > 0 {
+		_, err = p.daoCustomer.Get(customerId)
+		if err != nil {
+			err := &utils.AppError{ErrorCode: funcode + "01", ErrorMsg: "Invalid CustomerId", ErrorDetail: "Given CustomerId is not exist"}
+			return p.errorReturn(err)
+		}
 	}
 
 	p.child = &p
