@@ -138,8 +138,7 @@ const (
 	FLD_DEALER_NAME = "dealer_name"
 
 	// Fields for Review/Feedback
-	FLD_REVIEW_ID   = "review_id"
-	FLD_REVIEW_DATE = "review_date"
+	FLD_REVIEW_ID = "review_id"
 
 	// Fields for WhishList
 	FLD_WISHLIST_ID = "wishlist_id"
