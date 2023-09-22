@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/zapscloud/golib-dbutils/db_common"
 	"github.com/zapscloud/golib-dbutils/db_utils"
@@ -152,6 +153,7 @@ func (p *customerreviewBaseService) Create(indata utils.Map) (utils.Map, error) 
 	indata[sales_common.FLD_BUSINESS_ID] = p.businessId
 	indata[sales_common.FLD_CUSTOMER_ID] = p.customerId
 	indata[sales_common.FLD_REVIEW_ID] = reviewId
+	indata[sales_common.FLD_REVIEW_DATE] = time.Now().UTC()
 
 	data, err := p.daoCustomerReview.Create(indata)
 	if err != nil {

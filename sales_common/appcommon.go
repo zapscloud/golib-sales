@@ -106,7 +106,7 @@ const (
 	FLD_CUSTOMER_PASSWORD = "customer_password"
 	FLD_CUSTOMER_OTP      = "customer_otp"
 
-	// Field for Customer Type Table	
+	// Field for Customer Type Table
 	FLD_CUSTOMER_TYPE_ID = "customertype_id"
 
 	// Fields for Order
@@ -138,7 +138,8 @@ const (
 	FLD_DEALER_NAME = "dealer_name"
 
 	// Fields for Review/Feedback
-	FLD_REVIEW_ID = "review_id"
+	FLD_REVIEW_ID   = "review_id"
+	FLD_REVIEW_DATE = "review_date"
 
 	// Fields for WhishList
 	FLD_WISHLIST_ID = "wishlist_id"
