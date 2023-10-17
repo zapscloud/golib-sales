@@ -8,6 +8,7 @@ import (
 	"github.com/zapscloud/golib-dbutils/db_common"
 	"github.com/zapscloud/golib-dbutils/db_utils"
 	"github.com/zapscloud/golib-platform/platform_repository"
+	"github.com/zapscloud/golib-platform/platform_services"
 	"github.com/zapscloud/golib-sales/sales_common"
 	"github.com/zapscloud/golib-sales/sales_repository"
 	"github.com/zapscloud/golib-utils/utils"
@@ -32,6 +33,7 @@ type RatingsService interface {
 
 type ratingsBaseService struct {
 	db_utils.DatabaseService
+	dbRegion    db_utils.DatabaseService
 	daoRatings  sales_repository.RatingsDao
 	daoBusiness platform_repository.BusinessDao
 	child       RatingsService
@@ -42,16 +44,25 @@ type ratingsBaseService struct {
 func NewRatingsService(props utils.Map) (RatingsService, error) {
 	funcode := sales_common.GetServiceModuleCode() + "M" + "01"
 
-	p := ratingsBaseService{}
-	err := p.OpenDatabaseService(props)
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("RatingsService ")
+	log.Printf("RatingsService::Start ")
 	// Verify whether the business id data passed
 	businessId, err := utils.GetMemberDataStr(props, sales_common.FLD_BUSINESS_ID)
 	if err != nil {
-		return p.errorReturn(err)
+		return nil, err
+	}
+
+	p := ratingsBaseService{}
+	// Open Database Service
+	err = p.OpenDatabaseService(props)
+	if err != nil {
+		return nil, err
+	}
+
+	// Open RegionDB Service
+	p.dbRegion, err = platform_services.OpenRegionDatabaseService(props)
+	if err != nil {
+		p.CloseDatabaseService()
+		return nil, err
 	}
 
 	// Assign the BusinessId
@@ -60,7 +71,10 @@ func NewRatingsService(props utils.Map) (RatingsService, error) {
 
 	_, err = p.daoBusiness.Get(businessId)
 	if err != nil {
-		err := &utils.AppError{ErrorCode: funcode + "01", ErrorMsg: "Invalid business_id", ErrorDetail: "Given business_id is not exist"}
+		err := &utils.AppError{
+			ErrorCode:   funcode + "01",
+			ErrorMsg:    "Invalid BusinessId",
+			ErrorDetail: "Given BusinessId is not exist"}
 		return p.errorReturn(err)
 	}
 
@@ -69,16 +83,17 @@ func NewRatingsService(props utils.Map) (RatingsService, error) {
 	return &p, err
 }
 
-// EndLoyaltyCardService - Close all the services
+// ratingsBaseService - Close all the services
 func (p *ratingsBaseService) EndService() {
 	log.Printf("EndService ")
 	p.CloseDatabaseService()
+	p.dbRegion.CloseDatabaseService()
 }
 
 func (p *ratingsBaseService) initializeService() {
 	log.Printf("RatingsService:: GetBusinessDao ")
-	p.daoRatings = sales_repository.NewRatingsDao(p.GetClient(), p.businessId)
 	p.daoBusiness = platform_repository.NewBusinessDao(p.GetClient())
+	p.daoRatings = sales_repository.NewRatingsDao(p.dbRegion.GetClient(), p.businessId)
 }
 
 // List - List All records
@@ -177,6 +192,6 @@ func (p *ratingsBaseService) Delete(ratingId string, delete_permanent bool) erro
 
 func (p *ratingsBaseService) errorReturn(err error) (RatingsService, error) {
 	// Close the Database Connection
-	p.CloseDatabaseService()
+	p.EndService()
 	return nil, err
 }

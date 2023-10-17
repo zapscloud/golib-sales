@@ -8,6 +8,7 @@ import (
 	"github.com/zapscloud/golib-dbutils/db_common"
 	"github.com/zapscloud/golib-dbutils/db_utils"
 	"github.com/zapscloud/golib-platform/platform_repository"
+	"github.com/zapscloud/golib-platform/platform_services"
 	"github.com/zapscloud/golib-sales/sales_common"
 	"github.com/zapscloud/golib-sales/sales_repository"
 	"github.com/zapscloud/golib-utils/utils"
@@ -34,6 +35,7 @@ type ProductService interface {
 // ProductService - Business Product Service structure
 type productBaseService struct {
 	db_utils.DatabaseService
+	dbRegion    db_utils.DatabaseService
 	daoProduct  sales_repository.ProductDao
 	daoBusiness platform_repository.BusinessDao
 	child       ProductService
@@ -44,16 +46,25 @@ type productBaseService struct {
 func NewProductService(props utils.Map) (ProductService, error) {
 	funcode := sales_common.GetServiceModuleCode() + "M" + "01"
 
-	p := productBaseService{}
-	err := p.OpenDatabaseService(props)
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("ProductService ")
+	log.Printf("ProductService::Start ")
 	// Verify whether the business id data passed
 	businessId, err := utils.GetMemberDataStr(props, sales_common.FLD_BUSINESS_ID)
 	if err != nil {
-		return p.errorReturn(err)
+		return nil, err
+	}
+
+	p := productBaseService{}
+	// Open Database Service
+	err = p.OpenDatabaseService(props)
+	if err != nil {
+		return nil, err
+	}
+
+	// Open RegionDB Service
+	p.dbRegion, err = platform_services.OpenRegionDatabaseService(props)
+	if err != nil {
+		p.CloseDatabaseService()
+		return nil, err
 	}
 
 	// Assign the BusinessId
@@ -74,7 +85,7 @@ func NewProductService(props utils.Map) (ProductService, error) {
 	return &p, err
 }
 
-// EndLoyaltyCardService - Close all the services
+// productBaseService - Close all the services
 func (p *productBaseService) EndService() {
 	log.Printf("EndProductService ")
 	p.CloseDatabaseService()
@@ -82,8 +93,8 @@ func (p *productBaseService) EndService() {
 
 func (p *productBaseService) initializeService() {
 	log.Printf("ProductMongoService:: GetBusinessDao ")
-	p.daoProduct = sales_repository.NewProductDao(p.GetClient(), p.businessId)
 	p.daoBusiness = platform_repository.NewBusinessDao(p.GetClient())
+	p.daoProduct = sales_repository.NewProductDao(p.dbRegion.GetClient(), p.businessId)
 }
 
 // List - List All records
@@ -182,6 +193,6 @@ func (p *productBaseService) Delete(productId string, delete_permanent bool) err
 
 func (p *productBaseService) errorReturn(err error) (ProductService, error) {
 	// Close the Database Connection
-	p.CloseDatabaseService()
+	p.EndService()
 	return nil, err
 }

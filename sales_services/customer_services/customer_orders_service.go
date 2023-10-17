@@ -8,6 +8,7 @@ import (
 	"github.com/zapscloud/golib-dbutils/db_common"
 	"github.com/zapscloud/golib-dbutils/db_utils"
 	"github.com/zapscloud/golib-platform/platform_repository"
+	"github.com/zapscloud/golib-platform/platform_services"
 	"github.com/zapscloud/golib-sales/sales_common"
 	"github.com/zapscloud/golib-sales/sales_repository"
 	"github.com/zapscloud/golib-sales/sales_repository/customer_repository"
@@ -33,6 +34,7 @@ type CustomerOrderService interface {
 
 type customerOrderBaseService struct {
 	db_utils.DatabaseService
+	dbRegion         db_utils.DatabaseService
 	daoCustomerOrder customer_repository.CustomerOrderDao
 	daoBusiness      platform_repository.BusinessDao
 	daoCustomer      sales_repository.CustomerDao
@@ -46,16 +48,25 @@ type customerOrderBaseService struct {
 func NewCustomerOrderService(props utils.Map) (CustomerOrderService, error) {
 	funcode := sales_common.GetServiceModuleCode() + "M" + "01"
 
-	p := customerOrderBaseService{}
-	err := p.OpenDatabaseService(props)
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("CustomerOrderService ")
+	log.Printf("CustomerOrderService::Start ")
 	// Verify whether the business id data passed
 	businessId, err := utils.GetMemberDataStr(props, sales_common.FLD_BUSINESS_ID)
 	if err != nil {
-		return p.errorReturn(err)
+		return nil, err
+	}
+
+	p := customerOrderBaseService{}
+	// Open Database Service
+	err = p.OpenDatabaseService(props)
+	if err != nil {
+		return nil, err
+	}
+
+	// Open RegionDB Service
+	p.dbRegion, err = platform_services.OpenRegionDatabaseService(props)
+	if err != nil {
+		p.CloseDatabaseService()
+		return nil, err
 	}
 
 	// Verify whether the User id data passed, this is optional parameter
@@ -72,7 +83,10 @@ func NewCustomerOrderService(props utils.Map) (CustomerOrderService, error) {
 	// Verify the Business Exists
 	_, err = p.daoBusiness.Get(businessId)
 	if err != nil {
-		err := &utils.AppError{ErrorCode: funcode + "01", ErrorMsg: "Invalid BusinessId", ErrorDetail: "Given BusinessId is not exist"}
+		err := &utils.AppError{
+			ErrorCode:   funcode + "01",
+			ErrorMsg:    "Invalid BusinessId",
+			ErrorDetail: "Given BusinessId is not exist"}
 		return p.errorReturn(err)
 	}
 
@@ -80,7 +94,10 @@ func NewCustomerOrderService(props utils.Map) (CustomerOrderService, error) {
 	if len(customerId) > 0 {
 		_, err = p.daoCustomer.Get(customerId)
 		if err != nil {
-			err := &utils.AppError{ErrorCode: funcode + "01", ErrorMsg: "Invalid CustomerId", ErrorDetail: "Given CustomerId is not exist"}
+			err := &utils.AppError{
+				ErrorCode:   funcode + "01",
+				ErrorMsg:    "Invalid CustomerId",
+				ErrorDetail: "Given CustomerId is not exist"}
 			return p.errorReturn(err)
 		}
 	}
@@ -90,17 +107,18 @@ func NewCustomerOrderService(props utils.Map) (CustomerOrderService, error) {
 	return &p, err
 }
 
-// EndLoyaltyCardService - Close all the services
+// customerOrderBaseService - Close all the services
 func (p *customerOrderBaseService) EndService() {
 	log.Printf("EndService ")
 	p.CloseDatabaseService()
+	p.dbRegion.CloseDatabaseService()
 }
 
 func (p *customerOrderBaseService) initializeService() {
 	log.Printf("customerOrderBaseService:: GetBusinessDao ")
-	p.daoCustomerOrder = customer_repository.NewCustomerOrderDao(p.GetClient(), p.businessId, p.customerId)
 	p.daoBusiness = platform_repository.NewBusinessDao(p.GetClient())
-	p.daoCustomer = sales_repository.NewCustomerDao(p.GetClient(), p.businessId)
+	p.daoCustomer = sales_repository.NewCustomerDao(p.dbRegion.GetClient(), p.businessId)
+	p.daoCustomerOrder = customer_repository.NewCustomerOrderDao(p.GetClient(), p.businessId, p.customerId)
 }
 
 // List - List All records
@@ -205,6 +223,6 @@ func (p *customerOrderBaseService) Delete(custOrderId string, delete_permanent b
 
 func (p *customerOrderBaseService) errorReturn(err error) (CustomerOrderService, error) {
 	// Close the Database Connection
-	p.CloseDatabaseService()
+	p.EndService()
 	return nil, err
 }

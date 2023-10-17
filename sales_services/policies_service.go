@@ -8,6 +8,7 @@ import (
 	"github.com/zapscloud/golib-dbutils/db_common"
 	"github.com/zapscloud/golib-dbutils/db_utils"
 	"github.com/zapscloud/golib-platform/platform_repository"
+	"github.com/zapscloud/golib-platform/platform_services"
 	"github.com/zapscloud/golib-sales/sales_common"
 	"github.com/zapscloud/golib-sales/sales_repository"
 	"github.com/zapscloud/golib-utils/utils"
@@ -34,6 +35,7 @@ type PoliciesService interface {
 // policiesService - Business policies Service structure
 type policiesBaseService struct {
 	db_utils.DatabaseService
+	dbRegion    db_utils.DatabaseService
 	daoPolicies sales_repository.PoliciesDao
 	daoBusiness platform_repository.BusinessDao
 	child       PoliciesService
@@ -44,16 +46,25 @@ type policiesBaseService struct {
 func NewPoliciesService(props utils.Map) (PoliciesService, error) {
 	funcode := sales_common.GetServiceModuleCode() + "M" + "01"
 
-	p := policiesBaseService{}
-	err := p.OpenDatabaseService(props)
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("PoliciesService ")
+	log.Printf("PoliciesService::Start ")
 	// Verify whether the business id data passed
 	businessId, err := utils.GetMemberDataStr(props, sales_common.FLD_BUSINESS_ID)
 	if err != nil {
-		return p.errorReturn(err)
+		return nil, err
+	}
+
+	p := policiesBaseService{}
+	// Open Database Service
+	err = p.OpenDatabaseService(props)
+	if err != nil {
+		return nil, err
+	}
+
+	// Open RegionDB Service
+	p.dbRegion, err = platform_services.OpenRegionDatabaseService(props)
+	if err != nil {
+		p.CloseDatabaseService()
+		return nil, err
 	}
 
 	// Assign the BusinessId
@@ -74,7 +85,7 @@ func NewPoliciesService(props utils.Map) (PoliciesService, error) {
 	return &p, err
 }
 
-// EndLoyaltyCardService - Close all the services
+// policiesBaseService - Close all the services
 func (p *policiesBaseService) EndService() {
 	log.Printf("EndPoliciesService ")
 	p.CloseDatabaseService()
@@ -82,8 +93,8 @@ func (p *policiesBaseService) EndService() {
 
 func (p *policiesBaseService) initializeService() {
 	log.Printf("PoliciesMongoService:: GetBusinessDao ")
-	p.daoPolicies = sales_repository.NewPoliciesDao(p.GetClient(), p.businessId)
 	p.daoBusiness = platform_repository.NewBusinessDao(p.GetClient())
+	p.daoPolicies = sales_repository.NewPoliciesDao(p.dbRegion.GetClient(), p.businessId)
 }
 
 // List - List All records
@@ -188,6 +199,6 @@ func (p *policiesBaseService) Delete(policyId string, delete_permanent bool) err
 
 func (p *policiesBaseService) errorReturn(err error) (PoliciesService, error) {
 	// Close the Database Connection
-	p.CloseDatabaseService()
+	p.EndService()
 	return nil, err
 }

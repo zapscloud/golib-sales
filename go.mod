@@ -3,10 +3,10 @@ module github.com/zapscloud/golib-sales
 go 1.20
 
 require (
-	github.com/zapscloud/golib-auth v1.0.1-0.20230915054112-f0a66b25a88f
-	github.com/zapscloud/golib-dbutils v1.1.1-0.20231006124328-1a3949fdf394
-	github.com/zapscloud/golib-platform v1.0.1-0.20231006124812-4c90a6ccdbb1
-	github.com/zapscloud/golib-utils v1.0.1-0.20230830110037-ce8b7333310f
+	github.com/zapscloud/golib-auth v1.0.1-0.20231016135600-058e61695557
+	github.com/zapscloud/golib-dbutils v1.1.1-0.20231016071702-b6e244391427
+	github.com/zapscloud/golib-platform v1.0.1-0.20231017073401-c864d398e548
+	github.com/zapscloud/golib-utils v1.0.1-0.20231013125100-bb65f5737443
 	go.mongodb.org/mongo-driver v1.11.7
 )
 

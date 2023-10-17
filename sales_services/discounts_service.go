@@ -8,6 +8,7 @@ import (
 	"github.com/zapscloud/golib-dbutils/db_common"
 	"github.com/zapscloud/golib-dbutils/db_utils"
 	"github.com/zapscloud/golib-platform/platform_repository"
+	"github.com/zapscloud/golib-platform/platform_services"
 	"github.com/zapscloud/golib-sales/sales_common"
 	"github.com/zapscloud/golib-sales/sales_repository"
 	"github.com/zapscloud/golib-utils/utils"
@@ -32,6 +33,7 @@ type DiscountService interface {
 
 type discountBaseService struct {
 	db_utils.DatabaseService
+	dbRegion    db_utils.DatabaseService
 	daoDiscount sales_repository.DiscountDao
 	daoBusiness platform_repository.BusinessDao
 	child       DiscountService
@@ -42,16 +44,25 @@ type discountBaseService struct {
 func NewDiscountService(props utils.Map) (DiscountService, error) {
 	funcode := sales_common.GetServiceModuleCode() + "M" + "01"
 
-	p := discountBaseService{}
-	err := p.OpenDatabaseService(props)
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("DiscountService ")
+	log.Printf("DiscountService::Start ")
 	// Verify whether the business id data passed
 	businessId, err := utils.GetMemberDataStr(props, sales_common.FLD_BUSINESS_ID)
 	if err != nil {
-		return p.errorReturn(err)
+		return nil, err
+	}
+
+	p := discountBaseService{}
+	// Open Database Service
+	err = p.OpenDatabaseService(props)
+	if err != nil {
+		return nil, err
+	}
+
+	// Open RegionDB Service
+	p.dbRegion, err = platform_services.OpenRegionDatabaseService(props)
+	if err != nil {
+		p.CloseDatabaseService()
+		return nil, err
 	}
 
 	// Assign the BusinessId
@@ -60,7 +71,10 @@ func NewDiscountService(props utils.Map) (DiscountService, error) {
 
 	_, err = p.daoBusiness.Get(businessId)
 	if err != nil {
-		err := &utils.AppError{ErrorCode: funcode + "01", ErrorMsg: "Invalid business_id", ErrorDetail: "Given business_id is not exist"}
+		err := &utils.AppError{
+			ErrorCode:   funcode + "01",
+			ErrorMsg:    "Invalid BusinessId",
+			ErrorDetail: "Given BusinessId is not exist"}
 		return p.errorReturn(err)
 	}
 
@@ -69,16 +83,17 @@ func NewDiscountService(props utils.Map) (DiscountService, error) {
 	return &p, err
 }
 
-// EndLoyaltyCardService - Close all the services
+// discountsBaseService - Close all the services
 func (p *discountBaseService) EndService() {
 	log.Printf("EndService ")
 	p.CloseDatabaseService()
+	p.dbRegion.CloseDatabaseService()
 }
 
 func (p *discountBaseService) initializeService() {
 	log.Printf("DiscountService:: GetBusinessDao ")
-	p.daoDiscount = sales_repository.NewDiscountDao(p.GetClient(), p.businessId)
 	p.daoBusiness = platform_repository.NewBusinessDao(p.GetClient())
+	p.daoDiscount = sales_repository.NewDiscountDao(p.dbRegion.GetClient(), p.businessId)
 }
 
 // List - List All records
@@ -177,6 +192,6 @@ func (p *discountBaseService) Delete(discountId string, delete_permanent bool) e
 
 func (p *discountBaseService) errorReturn(err error) (DiscountService, error) {
 	// Close the Database Connection
-	p.CloseDatabaseService()
+	p.EndService()
 	return nil, err
 }

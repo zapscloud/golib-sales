@@ -8,6 +8,7 @@ import (
 	"github.com/zapscloud/golib-dbutils/db_common"
 	"github.com/zapscloud/golib-dbutils/db_utils"
 	"github.com/zapscloud/golib-platform/platform_repository"
+	"github.com/zapscloud/golib-platform/platform_services"
 	"github.com/zapscloud/golib-sales/sales_common"
 	"github.com/zapscloud/golib-sales/sales_repository"
 	"github.com/zapscloud/golib-utils/utils"
@@ -34,6 +35,7 @@ type CatalogueService interface {
 // BrandService - Brand Service structure
 type catalogueBaseService struct {
 	db_utils.DatabaseService
+	dbRegion     db_utils.DatabaseService
 	daoCatalogue sales_repository.CatalogueDao
 	daoBusiness  platform_repository.BusinessDao
 	child        CatalogueService
@@ -44,16 +46,25 @@ type catalogueBaseService struct {
 func NewCatalogueService(props utils.Map) (CatalogueService, error) {
 	funcode := sales_common.GetServiceModuleCode() + "M" + "01"
 
-	p := catalogueBaseService{}
-	err := p.OpenDatabaseService(props)
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("CatalogueService ")
+	log.Printf("CatalogueService::Start ")
 	// Verify whether the business id data passed
 	businessId, err := utils.GetMemberDataStr(props, sales_common.FLD_BUSINESS_ID)
 	if err != nil {
-		return p.errorReturn(err)
+		return nil, err
+	}
+
+	p := catalogueBaseService{}
+	// Open Database Service
+	err = p.OpenDatabaseService(props)
+	if err != nil {
+		return nil, err
+	}
+
+	// Open RegionDB Service
+	p.dbRegion, err = platform_services.OpenRegionDatabaseService(props)
+	if err != nil {
+		p.CloseDatabaseService()
+		return nil, err
 	}
 
 	// Assign the BusinessId
@@ -62,7 +73,10 @@ func NewCatalogueService(props utils.Map) (CatalogueService, error) {
 
 	_, err = p.daoBusiness.Get(businessId)
 	if err != nil {
-		err := &utils.AppError{ErrorCode: funcode + "01", ErrorMsg: "Invalid business_id", ErrorDetail: "Given business_id is not exist"}
+		err := &utils.AppError{
+			ErrorCode:   funcode + "01",
+			ErrorMsg:    "Invalid BusinessId",
+			ErrorDetail: "Given BusinessId is not exist"}
 		return p.errorReturn(err)
 	}
 
@@ -71,16 +85,17 @@ func NewCatalogueService(props utils.Map) (CatalogueService, error) {
 	return &p, err
 }
 
-// EndLoyaltyCardService - Close all the services
+// catalogueBaseService - Close all the services
 func (p *catalogueBaseService) EndService() {
 	log.Printf("EndService ")
 	p.CloseDatabaseService()
+	p.dbRegion.CloseDatabaseService()
 }
 
 func (p *catalogueBaseService) initializeService() {
 	log.Printf("CatalogueService:: GetBusinessDao ")
-	p.daoCatalogue = sales_repository.NewCatalogueDao(p.GetClient(), p.businessId)
 	p.daoBusiness = platform_repository.NewBusinessDao(p.GetClient())
+	p.daoCatalogue = sales_repository.NewCatalogueDao(p.dbRegion.GetClient(), p.businessId)
 }
 
 // List - List All records
@@ -180,6 +195,6 @@ func (p *catalogueBaseService) Delete(catalogueId string, delete_permanent bool)
 
 func (p *catalogueBaseService) errorReturn(err error) (CatalogueService, error) {
 	// Close the Database Connection
-	p.CloseDatabaseService()
+	p.EndService()
 	return nil, err
 }

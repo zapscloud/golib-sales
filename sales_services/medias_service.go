@@ -8,6 +8,7 @@ import (
 	"github.com/zapscloud/golib-dbutils/db_common"
 	"github.com/zapscloud/golib-dbutils/db_utils"
 	"github.com/zapscloud/golib-platform/platform_repository"
+	"github.com/zapscloud/golib-platform/platform_services"
 	"github.com/zapscloud/golib-sales/sales_common"
 	"github.com/zapscloud/golib-sales/sales_repository"
 
@@ -33,6 +34,7 @@ type MediaService interface {
 
 type mediaBaseService struct {
 	db_utils.DatabaseService
+	dbRegion    db_utils.DatabaseService
 	daoMedia    sales_repository.MediaDao
 	daoBusiness platform_repository.BusinessDao
 	child       MediaService
@@ -43,16 +45,25 @@ type mediaBaseService struct {
 func NewMediaService(props utils.Map) (MediaService, error) {
 	funcode := sales_common.GetServiceModuleCode() + "M" + "01"
 
-	p := mediaBaseService{}
-	err := p.OpenDatabaseService(props)
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("MediaService ")
+	log.Printf("MediaService::Start ")
 	// Verify whether the business id data passed
 	businessId, err := utils.GetMemberDataStr(props, sales_common.FLD_BUSINESS_ID)
 	if err != nil {
-		return p.errorReturn(err)
+		return nil, err
+	}
+
+	p := mediaBaseService{}
+	// Open Database Service
+	err = p.OpenDatabaseService(props)
+	if err != nil {
+		return nil, err
+	}
+
+	// Open RegionDB Service
+	p.dbRegion, err = platform_services.OpenRegionDatabaseService(props)
+	if err != nil {
+		p.CloseDatabaseService()
+		return nil, err
 	}
 
 	// Assign the BusinessId
@@ -61,7 +72,10 @@ func NewMediaService(props utils.Map) (MediaService, error) {
 
 	_, err = p.daoBusiness.Get(businessId)
 	if err != nil {
-		err := &utils.AppError{ErrorCode: funcode + "01", ErrorMsg: "Invalid business_id", ErrorDetail: "Given business_id is not exist"}
+		err := &utils.AppError{
+			ErrorCode:   funcode + "01",
+			ErrorMsg:    "Invalid BusinessId",
+			ErrorDetail: "Given BusinessId is not exist"}
 		return p.errorReturn(err)
 	}
 
@@ -70,16 +84,17 @@ func NewMediaService(props utils.Map) (MediaService, error) {
 	return &p, err
 }
 
-// EndLoyaltyCardService - Close all the services
+// mediaBaseService - Close all the services
 func (p *mediaBaseService) EndService() {
 	log.Printf("EndService ")
 	p.CloseDatabaseService()
+	p.dbRegion.CloseDatabaseService()
 }
 
 func (p *mediaBaseService) initializeService() {
 	log.Printf("MediaService:: GetBusinessDao ")
-	p.daoMedia = sales_repository.NewMediaDao(p.GetClient(), p.businessId)
 	p.daoBusiness = platform_repository.NewBusinessDao(p.GetClient())
+	p.daoMedia = sales_repository.NewMediaDao(p.dbRegion.GetClient(), p.businessId)
 }
 
 // List - List All records
@@ -178,6 +193,6 @@ func (p *mediaBaseService) Delete(mediaId string, delete_permanent bool) error {
 
 func (p *mediaBaseService) errorReturn(err error) (MediaService, error) {
 	// Close the Database Connection
-	p.CloseDatabaseService()
+	p.EndService()
 	return nil, err
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/zapscloud/golib-dbutils/db_common"
 	"github.com/zapscloud/golib-dbutils/db_utils"
 	"github.com/zapscloud/golib-platform/platform_repository"
+	"github.com/zapscloud/golib-platform/platform_services"
 	"github.com/zapscloud/golib-sales/sales_common"
 	"github.com/zapscloud/golib-sales/sales_repository"
 	"github.com/zapscloud/golib-utils/utils"
@@ -32,6 +33,7 @@ type BannerService interface {
 
 type bannerBaseService struct {
 	db_utils.DatabaseService
+	dbRegion    db_utils.DatabaseService
 	daoBanner   sales_repository.BannerDao
 	daoBusiness platform_repository.BusinessDao
 	child       BannerService
@@ -42,16 +44,25 @@ type bannerBaseService struct {
 func NewBannerService(props utils.Map) (BannerService, error) {
 	funcode := sales_common.GetServiceModuleCode() + "M" + "01"
 
-	p := bannerBaseService{}
-	err := p.OpenDatabaseService(props)
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("BannerService ")
+	log.Printf("BannerService::Start ")
 	// Verify whether the business id data passed
 	businessId, err := utils.GetMemberDataStr(props, sales_common.FLD_BUSINESS_ID)
 	if err != nil {
-		return p.errorReturn(err)
+		return nil, err
+	}
+
+	p := bannerBaseService{}
+	// Open Database Service
+	err = p.OpenDatabaseService(props)
+	if err != nil {
+		return nil, err
+	}
+
+	// Open RegionDB Service
+	p.dbRegion, err = platform_services.OpenRegionDatabaseService(props)
+	if err != nil {
+		p.CloseDatabaseService()
+		return nil, err
 	}
 
 	// Assign the BusinessId
@@ -60,7 +71,10 @@ func NewBannerService(props utils.Map) (BannerService, error) {
 
 	_, err = p.daoBusiness.Get(businessId)
 	if err != nil {
-		err := &utils.AppError{ErrorCode: funcode + "01", ErrorMsg: "Invalid business_id", ErrorDetail: "Given business_id is not exist"}
+		err := &utils.AppError{
+			ErrorCode:   funcode + "01",
+			ErrorMsg:    "Invalid BusinessId",
+			ErrorDetail: "Given BusinessId is not exist"}
 		return p.errorReturn(err)
 	}
 
@@ -69,16 +83,17 @@ func NewBannerService(props utils.Map) (BannerService, error) {
 	return &p, err
 }
 
-// EndLoyaltyCardService - Close all the services
+// BannerBaseService - Close all the services
 func (p *bannerBaseService) EndService() {
 	log.Printf("EndService ")
 	p.CloseDatabaseService()
+	p.dbRegion.CloseDatabaseService()
 }
 
 func (p *bannerBaseService) initializeService() {
 	log.Printf("BannerService:: GetBusinessDao ")
-	p.daoBanner = sales_repository.NewBannerDao(p.GetClient(), p.businessId)
 	p.daoBusiness = platform_repository.NewBusinessDao(p.GetClient())
+	p.daoBanner = sales_repository.NewBannerDao(p.dbRegion.GetClient(), p.businessId)
 }
 
 // List - List All records
@@ -177,6 +192,6 @@ func (p *bannerBaseService) Delete(bannerId string, delete_permanent bool) error
 
 func (p *bannerBaseService) errorReturn(err error) (BannerService, error) {
 	// Close the Database Connection
-	p.CloseDatabaseService()
+	p.EndService()
 	return nil, err
 }

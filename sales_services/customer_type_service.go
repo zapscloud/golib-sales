@@ -8,6 +8,7 @@ import (
 	"github.com/zapscloud/golib-dbutils/db_common"
 	"github.com/zapscloud/golib-dbutils/db_utils"
 	"github.com/zapscloud/golib-platform/platform_repository"
+	"github.com/zapscloud/golib-platform/platform_services"
 	"github.com/zapscloud/golib-sales/sales_common"
 	"github.com/zapscloud/golib-sales/sales_repository"
 	"github.com/zapscloud/golib-utils/utils"
@@ -27,34 +28,41 @@ type CustomerTypeService interface {
 	// Delete - Delete Service
 	Delete(CustomerTypeId string, delete_permanent bool) error
 
-	
-	
-
 	EndService()
 }
 
 type CustomerTypeBaseService struct {
 	db_utils.DatabaseService
+	dbRegion        db_utils.DatabaseService
 	daoCustomerType sales_repository.CustomerTypeDao
-	daoBusiness platform_repository.BusinessDao
-	child       CustomerTypeService
-	businessId  string
+	daoBusiness     platform_repository.BusinessDao
+	child           CustomerTypeService
+	businessId      string
 }
 
 // NewCustomerTypeService - Construct CustomerType
 func NewCustomerTypeService(props utils.Map) (CustomerTypeService, error) {
 	funcode := sales_common.GetServiceModuleCode() + "M" + "01"
 
-	p := CustomerTypeBaseService{}
-	err := p.OpenDatabaseService(props)
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("CustomerTypeService ")
+	log.Printf("CustomerTypeService::Start ")
 	// Verify whether the business id data passed
 	businessId, err := utils.GetMemberDataStr(props, sales_common.FLD_BUSINESS_ID)
 	if err != nil {
-		return p.errorReturn(err)
+		return nil, err
+	}
+
+	p := CustomerTypeBaseService{}
+	// Open Database Service
+	err = p.OpenDatabaseService(props)
+	if err != nil {
+		return nil, err
+	}
+
+	// Open RegionDB Service
+	p.dbRegion, err = platform_services.OpenRegionDatabaseService(props)
+	if err != nil {
+		p.CloseDatabaseService()
+		return nil, err
 	}
 
 	// Assign the BusinessId
@@ -63,7 +71,10 @@ func NewCustomerTypeService(props utils.Map) (CustomerTypeService, error) {
 
 	_, err = p.daoBusiness.Get(businessId)
 	if err != nil {
-		err := &utils.AppError{ErrorCode: funcode + "01", ErrorMsg: "Invalid business_id", ErrorDetail: "Given business_id is not exist"}
+		err := &utils.AppError{
+			ErrorCode:   funcode + "01",
+			ErrorMsg:    "Invalid BusinessId",
+			ErrorDetail: "Given BusinessId is not exist"}
 		return p.errorReturn(err)
 	}
 
@@ -76,12 +87,13 @@ func NewCustomerTypeService(props utils.Map) (CustomerTypeService, error) {
 func (p *CustomerTypeBaseService) EndService() {
 	log.Printf("EndService ")
 	p.CloseDatabaseService()
+	p.dbRegion.CloseDatabaseService()
 }
 
 func (p *CustomerTypeBaseService) initializeService() {
 	log.Printf("CustomerTypeService:: GetBusinessDao ")
-	p.daoCustomerType = sales_repository.NewCustomerTypeDao(p.GetClient(), p.businessId)
 	p.daoBusiness = platform_repository.NewBusinessDao(p.GetClient())
+	p.daoCustomerType = sales_repository.NewCustomerTypeDao(p.dbRegion.GetClient(), p.businessId)
 }
 
 // List - List All records
@@ -136,7 +148,6 @@ func (p *CustomerTypeBaseService) Create(indata utils.Map) (utils.Map, error) {
 	indata[sales_common.FLD_BUSINESS_ID] = p.businessId
 	indata[sales_common.FLD_CUSTOMER_TYPE_ID] = CustomerTypeId
 
-	
 	data, err := p.daoCustomerType.Create(indata)
 	if err != nil {
 		return utils.Map{}, err
@@ -154,9 +165,6 @@ func (p *CustomerTypeBaseService) Update(CustomerTypeId string, indata utils.Map
 	// Delete the Key fields if exist
 	delete(indata, sales_common.FLD_BUSINESS_ID)
 	delete(indata, sales_common.FLD_CUSTOMER_TYPE_ID)
-
-	
-	
 
 	data, err := p.daoCustomerType.Update(CustomerTypeId, indata)
 
@@ -190,6 +198,6 @@ func (p *CustomerTypeBaseService) Delete(CustomerTypeId string, delete_permanent
 
 func (p *CustomerTypeBaseService) errorReturn(err error) (CustomerTypeService, error) {
 	// Close the Database Connection
-	p.CloseDatabaseService()
+	p.EndService()
 	return nil, err
 }

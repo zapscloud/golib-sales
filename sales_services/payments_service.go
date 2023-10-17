@@ -8,6 +8,7 @@ import (
 	"github.com/zapscloud/golib-dbutils/db_common"
 	"github.com/zapscloud/golib-dbutils/db_utils"
 	"github.com/zapscloud/golib-platform/platform_repository"
+	"github.com/zapscloud/golib-platform/platform_services"
 	"github.com/zapscloud/golib-sales/sales_common"
 	"github.com/zapscloud/golib-sales/sales_repository"
 	"github.com/zapscloud/golib-utils/utils"
@@ -34,6 +35,7 @@ type PaymentService interface {
 // PaymentService - Business Payment Service structure
 type paymentBaseService struct {
 	db_utils.DatabaseService
+	dbRegion    db_utils.DatabaseService
 	daoPayment  sales_repository.PaymentDao
 	daoBusiness platform_repository.BusinessDao
 	child       PaymentService
@@ -44,16 +46,25 @@ type paymentBaseService struct {
 func NewPaymentService(props utils.Map) (PaymentService, error) {
 	funcode := sales_common.GetServiceModuleCode() + "M" + "01"
 
-	p := paymentBaseService{}
-	err := p.OpenDatabaseService(props)
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Printf("PaymentService ")
+	log.Printf("PaymentService::Start ")
 	// Verify whether the business id data passed
 	businessId, err := utils.GetMemberDataStr(props, sales_common.FLD_BUSINESS_ID)
 	if err != nil {
-		return p.errorReturn(err)
+		return nil, err
+	}
+
+	p := paymentBaseService{}
+	// Open Database Service
+	err = p.OpenDatabaseService(props)
+	if err != nil {
+		return nil, err
+	}
+
+	// Open RegionDB Service
+	p.dbRegion, err = platform_services.OpenRegionDatabaseService(props)
+	if err != nil {
+		p.CloseDatabaseService()
+		return nil, err
 	}
 
 	// Assign the BusinessId
@@ -74,7 +85,7 @@ func NewPaymentService(props utils.Map) (PaymentService, error) {
 	return &p, err
 }
 
-// EndLoyaltyCardService - Close all the services
+// paymentBaseService - Close all the services
 func (p *paymentBaseService) EndService() {
 	log.Printf("EndPaymentService ")
 	p.CloseDatabaseService()
@@ -82,8 +93,8 @@ func (p *paymentBaseService) EndService() {
 
 func (p *paymentBaseService) initializeService() {
 	log.Printf("PaymentMongoService:: GetBusinessDao ")
-	p.daoPayment = sales_repository.NewPaymentDao(p.GetClient(), p.businessId)
 	p.daoBusiness = platform_repository.NewBusinessDao(p.GetClient())
+	p.daoPayment = sales_repository.NewPaymentDao(p.dbRegion.GetClient(), p.businessId)
 }
 
 // List - List All records
@@ -182,6 +193,6 @@ func (p *paymentBaseService) Delete(paymentId string, delete_permanent bool) err
 
 func (p *paymentBaseService) errorReturn(err error) (PaymentService, error) {
 	// Close the Database Connection
-	p.CloseDatabaseService()
+	p.EndService()
 	return nil, err
 }
