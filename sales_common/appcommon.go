@@ -20,7 +20,6 @@ const (
 	DbProducts          = DbPrefix + "sales_products"
 	DbTestimonials      = DbPrefix + "sales_testimonials"
 	DbBlogs             = DbPrefix + "sales_blogs"
-	DbCompareProds      = DbPrefix + "sales_compare_products"
 	DbCustomers         = DbPrefix + "sales_customers"
 	DbCustomerOrders    = DbPrefix + "sales_customer_orders"
 	DbCustomerCarts     = DbPrefix + "sales_customer_carts"
@@ -30,6 +29,7 @@ const (
 	DbPayments          = DbPrefix + "sales_payments"
 	DbNavigations       = DbPrefix + "sales_navigations"
 	DbPreferences       = DbPrefix + "sales_preferences"
+	DbProdPreferences   = DbPrefix + "sales_prod_preferences"
 	DbPages             = DbPrefix + "sales_pages"
 	DbDealers           = DbPrefix + "sales_dealers"
 	DbDiscounts         = DbPrefix + "sales_discounts"
@@ -131,6 +131,10 @@ const (
 	// Fields for Preference
 	FLD_PREFERENCE_ID   = "preference_id"
 	FLD_PREFERENCE_NAME = "preference_name"
+
+	// Fields for Product Preference
+	FLD_PROD_PREFERENCE_ID   = "prod_preference_id"
+	FLD_PROD_PREFERENCE_NAME = "prod_preference_name"
 
 	// Fields for Page
 	FLD_PAGE_ID = "page_id"
