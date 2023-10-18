@@ -20,6 +20,7 @@ const (
 	DbProducts          = DbPrefix + "sales_products"
 	DbTestimonials      = DbPrefix + "sales_testimonials"
 	DbBlogs             = DbPrefix + "sales_blogs"
+	DbCompareProds      = DbPrefix + "sales_compare_products"
 	DbCustomers         = DbPrefix + "sales_customers"
 	DbCustomerOrders    = DbPrefix + "sales_customer_orders"
 	DbCustomerCarts     = DbPrefix + "sales_customer_carts"
