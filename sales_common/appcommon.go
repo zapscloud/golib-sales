@@ -40,6 +40,7 @@ const (
 	DbMaterialTypes     = DbPrefix + "sales_material_types"
 	DbCoupons           = DbPrefix + "sales_coupons"
 	DbCustomerTypes     = DbPrefix + "sales_customer_types"
+	DbTerritories       = DbPrefix + "sales_territories"
 )
 
 const (
@@ -174,6 +175,10 @@ const (
 	// Fields for Coupons
 	FLD_COUPON_ID   = "coupon_id"
 	FLD_COUPON_CODE = "coupon_code"
+
+	// Fields for Territory
+	FLD_TERRITORY_ID   = "territory_id"
+	FLD_TERRITORY_NAME = "territory_name"
 )
 
 func init() {
