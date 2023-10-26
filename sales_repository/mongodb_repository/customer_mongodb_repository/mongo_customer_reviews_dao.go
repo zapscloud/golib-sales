@@ -96,8 +96,8 @@ func (t *CustomerReviewMongoDBDao) List(filter string, sort string, skip int64, 
 	}
 
 	listdata := []utils.Map{}
-	for idx, value := range results {
-		log.Println("Item ", idx)
+	for _, value := range results {
+		// log.Println("Item ", idx)
 		// Remove fields from result
 		value = db_common.AmendFldsForGet(value)
 		listdata = append(listdata, value)

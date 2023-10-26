@@ -89,8 +89,8 @@ func (t *CatalogueMongoDBDao) List(filter string, sort string, skip int64, limit
 	}
 
 	listdata := []utils.Map{}
-	for idx, value := range results {
-		log.Println("Item ", idx)
+	for _, value := range results {
+		// log.Println("Item ", idx)
 		delete(value, db_common.FLD_DEFAULT_ID)
 		listdata = append(listdata, value)
 	}
