@@ -32,7 +32,7 @@ const (
 	DbProdPreferences   = DbPrefix + "sales_prod_preferences"
 	DbPages             = DbPrefix + "sales_pages"
 	DbDealers           = DbPrefix + "sales_dealers"
-	DbDiscounts         = DbPrefix + "sales_discounts"
+	DbOffers            = DbPrefix + "sales_offers"
 	DbMedias            = DbPrefix + "sales_medias"
 	DbQuiz              = DbPrefix + "sales_quiz"
 	DbCampaigns         = DbPrefix + "sales_campaigns"
@@ -152,8 +152,8 @@ const (
 	// Fields for Media
 	FLD_MEDIA_ID = "media_id"
 
-	// Fields for Discount
-	FLD_DISCOUNT_ID = "discount_id"
+	// Fields for Offer
+	FLD_OFFER_ID = "offer_id"
 
 	// Fields for Quiz
 	FLD_QUIZ_ID = "quiz_id"
