@@ -138,7 +138,7 @@ func (p *offerBaseService) Create(indata utils.Map) (utils.Map, error) {
 	if dataok {
 		offerId = strings.ToLower(dataval.(string))
 	} else {
-		offerId = utils.GenerateUniqueId("disc")
+		offerId = utils.GenerateUniqueId("offr")
 		log.Println("Unique Offer ID", offerId)
 	}
 
