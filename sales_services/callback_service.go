@@ -34,7 +34,7 @@ type CallbackService interface {
 type callbackBaseService struct {
 	db_utils.DatabaseService
 	dbRegion    db_utils.DatabaseService
-	daoCallback     sales_repository.CallbackDao
+	daoCallback sales_repository.CallbackDao
 	daoBusiness platform_repository.BusinessDao
 	child       CallbackService
 	businessId  string
@@ -171,25 +171,17 @@ func (p *callbackBaseService) Delete(callbackId string, delete_permanent bool) e
 
 	log.Println("CallbackService::Delete - Begin", callbackId)
 
-	if delete_permanent {
-		result, err := p.daoCallback.Delete(callbackId)
-		if err != nil {
-			return err
-		}
-		log.Printf("Delete %v", result)
-	} else {
-		indata := utils.Map{db_common.FLD_IS_DELETED: true}
-		data, err := p.Update(callbackId, indata)
-		if err != nil {
-			return err
-		}
-		log.Println("Update for Delete Flag", data)
+	indata := utils.Map{db_common.FLD_IS_DELETED: true}
+	data, err := p.Update(callbackId, indata)
+	if err != nil {
+		return err
 	}
+	log.Println("Update for Delete Flag", data)
 
 	log.Printf("CallbackService::Delete - End")
 	return nil
-}
 
+}
 func (p *callbackBaseService) errorReturn(err error) (CallbackService, error) {
 	// Close the Database Connection
 	p.EndService()

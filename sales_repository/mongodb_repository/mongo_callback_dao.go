@@ -132,7 +132,7 @@ func (t *CallbackMongoDBDao) Get(callbackId string) (utils.Map, error) {
 	collection, ctx, err := mongo_utils.GetMongoDbCollection(t.client, sales_common.DbCallbacks)
 	log.Println("Get:: Got Collection ")
 
-	filter := bson.D{{Key: sales_common.FLD_QUIZ_ID, Value: callbackId}, {}}
+	filter := bson.D{{Key: sales_common.FLD_CALLBACK_ID, Value: callbackId}, {}}
 
 	filter = append(filter,
 		bson.E{Key: sales_common.FLD_BUSINESS_ID, Value: t.businessId},
@@ -215,9 +215,9 @@ func (t *CallbackMongoDBDao) Create(indata utils.Map) (utils.Map, error) {
 
 	}
 	log.Println("Inserted a single document: ", insertResult1.InsertedID)
-	log.Println("Save - End", indata[sales_common.FLD_QUIZ_ID])
+	log.Println("Save - End", indata[sales_common.FLD_CALLBACK_ID])
 
-	return t.Get(indata[sales_common.FLD_QUIZ_ID].(string))
+	return t.Get(indata[sales_common.FLD_CALLBACK_ID].(string))
 }
 
 // Update - Update Collection
@@ -234,7 +234,7 @@ func (t *CallbackMongoDBDao) Update(callbackId string, indata utils.Map) (utils.
 	indata = db_common.AmendFldsforUpdate(indata)
 	log.Printf("Update - Values %v", indata)
 
-	filterCallback := bson.D{{Key: sales_common.FLD_QUIZ_ID, Value: callbackId}}
+	filterCallback := bson.D{{Key: sales_common.FLD_CALLBACK_ID, Value: callbackId}}
 	updateResult1, err := collection.UpdateOne(ctx, filterCallback, bson.D{{Key: "$set", Value: indata}})
 	if err != nil {
 		return utils.Map{}, err
@@ -261,7 +261,7 @@ func (t *CallbackMongoDBDao) Delete(callbackId string) (int64, error) {
 		CaseLevel: false,
 	})
 
-	filterCallback := bson.D{{Key: sales_common.FLD_QUIZ_ID, Value: callbackId}}
+	filterCallback := bson.D{{Key: sales_common.FLD_CALLBACK_ID, Value: callbackId}}
 	resCallback, err := collection.DeleteOne(ctx, filterCallback, optsCallback)
 	if err != nil {
 		log.Println("Error in delete ", err)
