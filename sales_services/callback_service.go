@@ -145,7 +145,7 @@ func (p *callbackBaseService) Create(indata utils.Map) (utils.Map, error) {
 	// Assign BusinessId
 	indata[sales_common.FLD_BUSINESS_ID] = p.businessId
 	indata[sales_common.FLD_CALLBACK_ID] = callbackId
-	indata[sales_common.FLD_FULL_FILLED] = false
+	indata[sales_common.FLD_IS_FULFILLED] = false
 
 	data, err := p.daoCallback.Create(indata)
 	if err != nil {
