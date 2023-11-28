@@ -138,13 +138,14 @@ func (p *callbackBaseService) Create(indata utils.Map) (utils.Map, error) {
 	if dataok {
 		callbackId = strings.ToLower(dataval.(string))
 	} else {
-		callbackId = utils.GenerateUniqueId("callback")
+		callbackId = utils.GenerateUniqueId("clbk_")
 		log.Println("Unique Callback ID", callbackId)
 	}
 
 	// Assign BusinessId
 	indata[sales_common.FLD_BUSINESS_ID] = p.businessId
 	indata[sales_common.FLD_CALLBACK_ID] = callbackId
+	indata[sales_common.FLD_FULL_FILLED] = false
 
 	data, err := p.daoCallback.Create(indata)
 	if err != nil {
