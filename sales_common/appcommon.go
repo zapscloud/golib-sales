@@ -161,6 +161,7 @@ const (
 
 	// Field For Callback
 	FLD_CALLBACK_ID = "callback_id"
+	FLD_FULL_FILLED="full_filled"
 
 	// Fields for Campaign
 	FLD_CAMPAIGN_ID   = "campaign_id"
