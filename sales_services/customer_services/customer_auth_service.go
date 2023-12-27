@@ -17,7 +17,7 @@ func ValidateAuthCredential(dbProps utils.Map, dataAuth utils.Map) (utils.Map, e
 	log.Printf("ValidateAppAuth %v", dataAuth)
 
 	// Authenticate with Clients tables
-	clientData, err := auth_services.AuthenticateClient(dbProps, dataAuth)
+	clientData, err := auth_services.ValidateAuthCredential(dbProps, dataAuth)
 	if err != nil {
 		return nil, err
 	}

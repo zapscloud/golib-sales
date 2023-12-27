@@ -42,6 +42,7 @@ const (
 	DbCoupons           = DbPrefix + "sales_coupons"
 	DbCustomerTypes     = DbPrefix + "sales_customer_types"
 	DbTerritories       = DbPrefix + "sales_territories"
+	DbCallbacks         = DbPrefix + "sales_callbacks"
 )
 
 const (
@@ -157,6 +158,10 @@ const (
 
 	// Fields for Quiz
 	FLD_QUIZ_ID = "quiz_id"
+
+	// Field For Callback
+	FLD_CALLBACK_ID = "callback_id"
+	FLD_IS_FULFILLED = "is_fulfilled"
 
 	// Fields for Campaign
 	FLD_CAMPAIGN_ID   = "campaign_id"
